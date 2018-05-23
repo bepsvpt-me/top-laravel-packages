@@ -6,7 +6,9 @@ use App\Package;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 class SyncPackage extends Command
 {
@@ -50,28 +52,50 @@ class SyncPackage extends Command
     {
         $packages = Package::whereIn('name', $this->argument('package'))->get(['id', 'url']);
 
-        $packages->each(function (Package $package) {
-            $response = $this->client->get($package->url.'.json');
+        $packages->chunk(10)->each(function (Collection $packages) {
+            $results = Promise\settle($this->asyncUrls($packages))->wait();
 
-            $content = $response->getBody()->getContents();
+            foreach ($packages as $package) {
+                $response = $results[$package->getKey()]['value'];
 
-            $data = json_decode($content, true)['package'];
+                $content = $response->getBody()->getContents();
 
-            $latestVersion = $this->latestVersion($data['versions']);
+                $data = json_decode($content, true)['package'];
 
-            $package->update([
-                'dependents' => $data['dependents'],
-                'github_stars' => $data['github_stars'],
-                'github_watchers' => $data['github_watchers'],
-                'github_forks' => $data['github_forks'],
-                'github_open_issues' => $data['github_open_issues'],
-                'latest_version' => $latestVersion,
-                'min_php_version' => $this->minPhpVersion($data['versions'][$latestVersion]['require']['php'] ?? null),
-                'min_laravel_version' => $this->minLaravelVersion($data['versions'][$latestVersion]['require']['illuminate/support'] ?? null),
-            ]);
+                $latestVersion = $this->latestVersion($data['versions']);
+
+                $package->update([
+                    'dependents' => $data['dependents'],
+                    'github_stars' => $data['github_stars'],
+                    'github_watchers' => $data['github_watchers'],
+                    'github_forks' => $data['github_forks'],
+                    'github_open_issues' => $data['github_open_issues'],
+                    'latest_version' => $latestVersion,
+                    'min_php_version' => $this->minPhpVersion($data['versions'][$latestVersion]['require']['php'] ?? null),
+                    'min_laravel_version' => $this->minLaravelVersion($data['versions'][$latestVersion]['require']['illuminate/support'] ?? null),
+                ]);
+            }
         });
 
         $this->info('Packages sync successfully.');
+    }
+
+    /**
+     * Get package information api urls.
+     *
+     * @param Collection $packages
+     *
+     * @return array
+     */
+    protected function asyncUrls(Collection $packages): array
+    {
+        $urls = $packages->mapWithKeys(function (Package $package) {
+            $url = sprintf('%s.json', $package->url);
+
+            return [$package->getKey() => $this->client->getAsync($url)];
+        });
+
+        return $urls->toArray();
     }
 
     /**
