@@ -12,4 +12,14 @@ class Package extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * Get the downloads for the package.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function downloads()
+    {
+        return $this->hasMany(Download::class);
+    }
 }
