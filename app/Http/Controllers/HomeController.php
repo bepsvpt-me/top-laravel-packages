@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Package;
+use Cache;
 
 class HomeController extends Controller
 {
@@ -13,9 +14,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $packages = Package::orderByDesc('downloads')
-            ->orderByDesc('favers')
-            ->get();
+        $packages = Cache::remember('package-list', 60, function () {
+            return Package::orderByDesc('downloads')
+                ->orderByDesc('favers')
+                ->get();
+        });
 
         if ($hideOfficialPackages = request('hide_official_packages', true)) {
             $packages = $packages->filter(function (Package $package) {
