@@ -3,23 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/css/dataTables.bootstrap4.min.css" integrity="sha256-LpykTdjMm+jVLpDWiYOkH8bYiithb4gajMYnIngj128=" crossorigin="anonymous">
-    <style>
-      header {
-        padding-left: 30px;
-        padding-right: 30px;
-      }
-
-      .homepage {
-        color: inherit !important;
-        text-decoration: none !important;
-      }
-
-      .description {
-        max-width: 20vw;
-      }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <title>Top Laravel Packages</title>
   </head>
   <body>
@@ -87,45 +73,12 @@
       </div>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous" defer></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js" integrity="sha256-qcV1wr+bn4NoBtxYqghmy1WIBvxeoe8vQlCowLG+cng=" crossorigin="anonymous" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/dataTables.bootstrap4.min.js" integrity="sha256-PahDJkda1lmviWgqffy4CcrECIFPJCWoa9EAqVx7Tf8=" crossorigin="anonymous" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.1/URI.min.js" integrity="sha256-D3tK9Rf/fVqBf6YDM8Q9NCNf/6+F2NOKnYSXHcl0keU=" crossorigin="anonymous" defer></script>
-    <script>
-      $(document).ready(function() {
-        $('#hide-official-packages').change(function () {
-          let url = URI(location.href);
-          let query = url.search(true);
-
-          query.hide_official_packages = $(this).is(":checked") ? '1' : '0';
-
-          url.search(query);
-
-          location.href = url.toString();
-        });
-
-        let table = $('#top-packages').DataTable({
-          'pageLength': 100,
-          'order': [[1, 'desc'], [2, 'desc']],
-          'columns': [
-            { 'searchable': false, 'orderable': false },
-            { 'searchable': false },
-            { 'searchable': false },
-            null,
-            { 'orderable': false },
-            null,
-            null
-          ]
-        });
-
-        table.on('order.dt search.dt', function () {
-          table.column(0, { search:'applied', order:'applied' }).nodes().each(function (cell, i) {
-            cell.innerHTML = i + 1;
-          });
-        }).draw();
-      });
-    </script>
+    <script src="{{ asset('js/jquery-3.3.1.slim.min.js') }}" defer></script>
+    <script src="{{ asset('js/popper.min.js') }}" defer></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}" defer></script>
+    <script src="{{ asset('js/jquery.dataTables.min.js') }}" defer></script>
+    <script src="{{ asset('js/dataTables.bootstrap4.min.js') }}" defer></script>
+    <script src="{{ asset('js/URI.min.js') }}" defer></script>
+    <script src="{{ asset('js/app.js') }}" defer></script>
   </body>
 </html>
