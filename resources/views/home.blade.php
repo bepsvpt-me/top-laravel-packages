@@ -70,6 +70,14 @@
     <footer class="footer my-3">
       <div class="container-fluid text-center text-muted">
         <span>Copyright © {{ date('Y') }}</span>
+
+        <span> · </span>
+
+        <span>
+          <a href="https://github.com/BePsvPT/top-laravel-packages" target="_blank" rel="noopener">
+            GitHub
+          </a>
+        </span>
       </div>
     </footer>
 
