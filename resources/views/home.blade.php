@@ -51,7 +51,7 @@
           @foreach($packages as $package)
             <tr>
               <td class="text-center align-middle">{{ $loop->iteration }}</td>
-              <td class="align-middle">{{ number_format($package->downloads) }}</td>
+              <td class="align-middle">{{ number_format($package->getAttribute('downloads')) }}</td>
               <td class="align-middle">{{ number_format($package->favers) }}</td>
               <td class="align-middle">
                 <a href="{{ $package->url }}" target="_blank" rel="noopener">
