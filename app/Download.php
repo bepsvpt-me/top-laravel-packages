@@ -19,4 +19,14 @@ class Download extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * Get the package that owns the download.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function package()
+    {
+        return $this->belongsTo(Package::class);
+    }
 }
