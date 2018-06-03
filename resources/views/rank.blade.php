@@ -1,7 +1,27 @@
 @extends('base')
 
+@php
+  $type = request()->route('type');
+  $uType = 'daily' === $type ? 'day' : substr($type, 0, -2);
+  $date = Carbon\Carbon::createFromDate(...explode('-', request()->route('date')));
+  $last = $date->copy()->{'sub'.ucfirst($uType)}()->{'startOf'.ucfirst($uType)}();
+  $next = $date->copy()->{'add'.ucfirst($uType)}()->{'startOf'.ucfirst($uType)}();
+@endphp
+
 @section('title')
-  {{ ucfirst(request()->route('type')) }} Downloads Ranking - {{ request()->route('date') }}
+  {{ ucfirst($type) }} Downloads Ranking - {{ request()->route('date') }}
+@endsection
+
+@section('header')
+  <div class="text-right">
+    <a href="{{ route('ranking', ['type' => $type, 'date' => $last->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}">
+      Prev {{ ucfirst($uType) }}
+    </a>
+
+    <a class="ml-2" href="{{ route('ranking', ['type' => $type, 'date' => $next->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}">
+      Next {{ ucfirst($uType) }}
+    </a>
+  </div>
 @endsection
 
 @section('main')
@@ -19,13 +39,13 @@
       @forelse($ranks as $rank)
         <tr>
           <td class="text-center align-middle">{{ $loop->iteration }}</td>
-          <td>{{ $rank->downloads }}</td>
+          <td class="text-center">{{ number_format($rank->downloads) }}</td>
           <td class="align-middle">
             <a href="{{ $rank->package->url }}" target="_blank" rel="noopener">
               {{ $rank->package->name }}
             </a>
           </td>
-          <td class="description">{{ $rank->package->description ?: '-' }}</td>
+          <td>{{ $rank->package->description ?: '-' }}</td>
         </tr>
       @empty
         <tr>
