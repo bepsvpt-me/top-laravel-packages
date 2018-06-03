@@ -23,7 +23,7 @@ class SyncPackageDownloads extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Sync package downloads.';
 
     /**
      * @var Client
