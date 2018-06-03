@@ -36,7 +36,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function rank(string $type, string $date)
+    public function ranking(string $type, string $date)
     {
         $unifiedDate = $this->checkParameters($type, $date);
 

@@ -12,4 +12,4 @@
 */
 
 Route::get('/', 'HomeController@index')->name('home');
-Route::get('ranking/{type}/{date}', 'HomeController@rank');
+Route::get('ranking/{type}/{date}', 'HomeController@ranking')->name('ranking');
