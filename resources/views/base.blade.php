@@ -10,16 +10,16 @@
   </head>
   <body>
     <header class="container-fluid">
-      <div class="row mt-4">
+      <div class="row align-items-end mt-4">
         <div class="col">
           <h1 class="m-0">
-            <a href="{{ route('home') }}" class="homepage">
-              @yield('title')
-            </a>
+            <span class="homepage">@yield('title')</span>
           </h1>
         </div>
 
-        @yield('header')
+        <div class="col-4">
+          @yield('header')
+        </div>
       </div>
 
       <hr>
