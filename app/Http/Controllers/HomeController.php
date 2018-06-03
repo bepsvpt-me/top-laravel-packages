@@ -38,12 +38,12 @@ class HomeController extends Controller
      */
     public function rank(string $type, string $date)
     {
-        $this->checkParameters($type, $date);
+        $unifiedDate = $this->checkParameters($type, $date);
 
-        $ranks = Cache::remember(sprintf('package-ranking-%s-%s', $type, $date), 60, function () use ($type, $date) {
+        $ranks = Cache::remember(sprintf('package-ranking-%s-%s', $type, $date), 60, function () use ($type, $unifiedDate) {
             $ranks = Download::with('package:packages.id,name,url,description')
                 ->where('type', $type)
-                ->where('date', $date)
+                ->where('date', $unifiedDate)
                 ->orderByDesc('downloads')
                 ->get();
 
@@ -56,14 +56,12 @@ class HomeController extends Controller
     /**
      * Validate ranking page parameters.
      *
-     * @todo optimize this
-     *
      * @param string $type
      * @param string $date
      *
-     * @return void
+     * @return string
      */
-    protected function checkParameters(string $type, string $date)
+    protected function checkParameters(string $type, string $date): string
     {
         switch ($type) {
             case 'daily': $format = 'Y-m-d'; break;
@@ -73,11 +71,13 @@ class HomeController extends Controller
             default: abort(404);
         }
 
-        $datetime = DateTime::createFromFormat($format, $date);
+        $datetime = DateTime::createFromFormat(sprintf('!%s', $format), $date);
 
         abort_unless($datetime, 404);
 
         abort_if($datetime->format($format) !== $date, 404);
+
+        return $datetime->format('Y-m-d');
     }
 
     /**
