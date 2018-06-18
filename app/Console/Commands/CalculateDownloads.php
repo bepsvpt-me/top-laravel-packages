@@ -44,28 +44,18 @@ class CalculateDownloads extends Command
     {
         Package::all(['id'])->each(function (Package $package) {
             foreach ($this->types as $type) {
-                $latest = Download::where('package_id', $package->getKey())
-                    ->where('type', $type)
-                    ->latest('date')
-                    ->first();
+                $downloads = $this->getPackageDownloads($package->getKey(), $type);
 
-                $downloads = Download::where('package_id', $package->getKey())
-                    ->where('type', 'daily');
-
-                if (! is_null($latest)) {
-                    $downloads = $downloads->where('date', '>=', $latest->date);
-                }
-
-                $groupOfDays = $downloads->get()->groupBy(function (Download $download) use ($type) {
+                $groupOfDays = $downloads->groupBy(function (Download $download) use ($type) {
                     $method = sprintf('startOf%s', ucfirst(substr($type, 0, -2)));
 
                     return Carbon::parse($download->date)->{$method}()->toDateString();
                 });
 
-                $groupOfDays->each(function (Collection $downloads, $week) use ($type) {
+                $groupOfDays->each(function (Collection $downloads, $date) use ($type) {
                     Download::firstOrNew([
                         'package_id' => $downloads->first()->package_id,
-                        'date' => $week,
+                        'date' => $date,
                         'type' => $type,
                     ])
                         ->fill(['downloads' => $downloads->sum('downloads')])
@@ -73,5 +63,49 @@ class CalculateDownloads extends Command
                 });
             }
         });
+    }
+
+    /**
+     * Get package downloads information.
+     *
+     * @param int    $packageId
+     * @param string $type
+     *
+     * @return Collection
+     */
+    protected function getPackageDownloads(int $packageId, string $type): Collection
+    {
+        $date = $this->getPackageNewestDownloadDate($packageId, $type);
+
+        $downloads = Download::where('package_id', $packageId)
+            ->where('type', 'daily');
+
+        if (! is_null($date)) {
+            $downloads = $downloads->where('date', '>=', $date);
+        }
+
+        return $downloads->get();
+    }
+
+    /**
+     * Get latest download information.
+     *
+     * @param int    $packageId
+     * @param string $type
+     *
+     * @return null|string
+     */
+    protected function getPackageNewestDownloadDate(int $packageId, string $type): ?string
+    {
+        $download = Download::where('package_id', $packageId)
+            ->where('type', $type)
+            ->latest('date')
+            ->first();
+
+        if (is_null($download)) {
+            return null;
+        }
+
+        return $download->date;
     }
 }
