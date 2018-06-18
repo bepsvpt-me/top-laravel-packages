@@ -4,8 +4,7 @@ namespace App\Console\Commands;
 
 use App\Package;
 use Artisan;
-use GuzzleHttp\Client;
-use Illuminate\Console\Command;
+use Log;
 
 class SyncPackagesList extends Command
 {
@@ -24,23 +23,6 @@ class SyncPackagesList extends Command
     protected $description = 'Sync laravel packages list.';
 
     /**
-     * @var Client
-     */
-    protected $client;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        parent::__construct();
-
-        $this->client = $client;
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -50,22 +32,15 @@ class SyncPackagesList extends Command
         $url = 'https://packagist.org/search.json?tags=laravel&type=library&per_page=100&page=1';
 
         while (true) {
-            $response = $this->client->get($url);
-
-            $content = $response->getBody()->getContents();
-
-            $data = json_decode($content, true);
-
-            foreach ($data['results'] as $package) {
-                Package::updateOrCreate(['name' => $package['name']],
-                    array_only($package, [
-                        'name', 'description', 'url', 'repository',
-                        'downloads', 'favers',
-                    ])
-                );
+            if (empty($data = $this->fetch($url))) {
+                break;
             }
 
-            Artisan::queue('sync:package', ['package' => array_pluck($data['results'], 'name')]);
+            $this->saveToDatabase($data['results']);
+
+            Artisan::queue('sync:package', [
+                'package' => array_pluck($data['results'], 'name'),
+            ]);
 
             if (! isset($data['next'])) {
                 break;
@@ -75,5 +50,52 @@ class SyncPackagesList extends Command
         }
 
         $this->info('Packages sync successfully.');
+    }
+
+    /**
+     * Fetch package search data.
+     *
+     * @param string $url
+     *
+     * @return array
+     */
+    protected function fetch(string $url): array
+    {
+        $response = $this->client->get($url, ['http_errors' => false]);
+
+        if (200 !== $response->getStatusCode()) {
+            Log::error('failed to sync package list');
+
+            return [];
+        }
+
+        $content = $response->getBody()->getContents();
+
+        return json_decode($content, true);
+    }
+
+    /**
+     * Save packages information to database.
+     *
+     * @param array $packages
+     *
+     * @return void
+     */
+    protected function saveToDatabase(array $packages): void
+    {
+        foreach ($packages as $package) {
+            $model = Package::updateOrCreate(['name' => $package['name']],
+                array_only($package, [
+                    'name', 'description', 'url', 'repository',
+                    'downloads', 'favers',
+                ])
+            );
+
+            if ($model->isDirty()) {
+                Log::error('could not create or update package', [
+                    'name' => $package['name'],
+                ]);
+            }
+        }
     }
 }
