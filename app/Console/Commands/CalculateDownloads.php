@@ -15,7 +15,7 @@ class CalculateDownloads extends Command
      *
      * @var string
      */
-    protected $signature = 'download:calc';
+    protected $signature = 'calc:download';
 
     /**
      * The console command description.
