@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Package;
+use Carbon\Carbon;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
-use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Log;
 
 class SyncPackage extends Command
 {
@@ -17,7 +17,7 @@ class SyncPackage extends Command
      *
      * @var string
      */
-    protected $signature = 'sync:package {package*}';
+    protected $signature = 'sync:package';
 
     /**
      * The console command description.
@@ -27,40 +27,21 @@ class SyncPackage extends Command
     protected $description = 'Sync package information.';
 
     /**
-     * @var Client
-     */
-    protected $client;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        parent::__construct();
-
-        $this->client = $client;
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
      */
     public function handle()
     {
-        $packages = Package::whereIn('name', $this->argument('package'))->get(['id', 'url']);
+        $packages = $this->packages();
 
         $packages->chunk(10)->each(function (Collection $packages) {
             $results = Promise\settle($this->asyncUrls($packages))->wait();
 
             foreach ($packages as $package) {
-                $response = $results[$package->getKey()]['value'];
-
-                $content = $response->getBody()->getContents();
-
-                $data = json_decode($content, true)['package'];
+                if (empty($data = $this->parsePromiseResponse($package->getKey(), $results))) {
+                    continue;
+                }
 
                 $latestVersion = $this->latestVersion($data['versions']);
 
@@ -81,6 +62,22 @@ class SyncPackage extends Command
     }
 
     /**
+     * Get packages filter by weights.
+     *
+     * @return Collection
+     */
+    protected function packages(): Collection
+    {
+        $day = Carbon::now()->dayOfYear;
+
+        $weights = array_filter(range(1, Package::TOTAL_WEIGHTS), function ($weight) use ($day) {
+            return 0 === ($day % $weight);
+        });
+
+        return Package::whereIn('weights', $weights)->get(['id', 'url']);
+    }
+
+    /**
      * Get package information api urls.
      *
      * @param Collection $packages
@@ -96,6 +93,32 @@ class SyncPackage extends Command
         });
 
         return $urls->toArray();
+    }
+
+    /**
+     * Parse promise response and get data.
+     *
+     * @param int   $key
+     * @param array $haystack
+     *
+     * @return array
+     */
+    protected function parsePromiseResponse(int $key, array $haystack): array
+    {
+        /** @var \GuzzleHttp\Psr7\Response $response */
+        $response = $haystack[$key]['value'];
+
+        if (200 !== $response->getStatusCode()) {
+            Log::error('failed to fetch package information', [
+                'id' => $key,
+            ]);
+
+            return [];
+        }
+
+        $content = $response->getBody()->getContents();
+
+        return json_decode($content, true)['package'];
     }
 
     /**
