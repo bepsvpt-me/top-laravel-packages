@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Package;
-use Artisan;
 use Log;
 
 class SyncPackagesList extends Command
@@ -37,10 +36,6 @@ class SyncPackagesList extends Command
             }
 
             $this->saveToDatabase($data['results']);
-
-            Artisan::queue('sync:package', [
-                'package' => array_pluck($data['results'], 'name'),
-            ]);
 
             if (! isset($data['next'])) {
                 break;
