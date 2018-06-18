@@ -44,7 +44,7 @@ class SyncPackagesList extends Command
             $url = urldecode($data['next']);
         }
 
-        $this->info('Packages sync successfully.');
+        $this->info('Command execute successfully.');
     }
 
     /**

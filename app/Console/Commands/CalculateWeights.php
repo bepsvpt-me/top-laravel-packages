@@ -46,6 +46,8 @@ class CalculateWeights extends Command
 
             $package->update(['weights' => $weight]);
         }
+
+        $this->info('Command execute successfully.');
     }
 
     /**

@@ -58,7 +58,7 @@ class SyncPackage extends Command
             }
         });
 
-        $this->info('Packages sync successfully.');
+        $this->info('Command execute successfully.');
     }
 
     /**
