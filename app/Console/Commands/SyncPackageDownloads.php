@@ -4,10 +4,9 @@ namespace App\Console\Commands;
 
 use App\Download;
 use App\Package;
-use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Log;
 
 class SyncPackageDownloads extends Command
 {
@@ -26,23 +25,6 @@ class SyncPackageDownloads extends Command
     protected $description = 'Sync package downloads.';
 
     /**
-     * @var Client
-     */
-    protected $client;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        parent::__construct();
-
-        $this->client = $client;
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -55,29 +37,21 @@ class SyncPackageDownloads extends Command
             $results = Promise\settle($this->asyncUrls($packages))->wait();
 
             foreach ($packages as $package) {
-                $response = $results[$package->getKey()]['value'];
-
-                $content = json_decode($response->getBody()->getContents(), true);
-
-                $downloads = array_combine($content['labels'], $content['values']);
+                $downloads = $this->parsePromiseResponse($package->getKey(), $results);
 
                 foreach ($downloads as $date => $value) {
-                    $model = Download::firstOrNew([
+                    Download::firstOrNew([
                         'package_id' => $package->getKey(),
                         'date' => $date,
                         'type' => 'daily',
-                    ]);
-
-                    if ($model->exists) {
-                        $model->update(['downloads' => $value]);
-                    } else {
-                        $package->downloads()->save($model->fill(['downloads' => $value]));
-                    }
+                    ])
+                        ->fill(['downloads' => $value])
+                        ->save();
                 }
             }
         });
 
-        $this->info('Sync package downloads successfully.');
+        $this->info('Command execute successfully.');
     }
 
     /**
@@ -105,5 +79,33 @@ class SyncPackageDownloads extends Command
         });
 
         return $urls->toArray();
+    }
+
+    /**
+     * Parse promise response and get data.
+     *
+     * @param int   $key
+     * @param array $haystack
+     *
+     * @return array
+     */
+    protected function parsePromiseResponse(int $key, array $haystack): array
+    {
+        /** @var \GuzzleHttp\Psr7\Response $response */
+        $response = $haystack[$key]['value'];
+
+        if (200 !== $response->getStatusCode()) {
+            Log::error('failed to fetch package download information', [
+                'id' => $key,
+            ]);
+
+            return [];
+        }
+
+        $content = $response->getBody()->getContents();
+
+        $data = json_decode($content, true);
+
+        return array_combine($data['labels'], $data['values']);
     }
 }
