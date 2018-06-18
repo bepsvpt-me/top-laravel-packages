@@ -27,6 +27,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:packages-list')->dailyAt('02:00');
         $schedule->command('sync:package-downloads')->dailyAt('03:00');
         $schedule->command('calc:download')->dailyAt('04:00');
+        $schedule->command('calc:weight')->dailyAt('05:00');
     }
 
     /**
