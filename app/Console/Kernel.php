@@ -26,10 +26,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('package:sync:list')->dailyAt('02:01');
-        $schedule->command('package:sync:downloads')->dailyAt('02:21');
-        $schedule->command('package:sync:information')->dailyAt('02:46');
-        $schedule->command('package:calc:downloads')->dailyAt('03:21');
-        $schedule->command('package:calc:weights')->dailyAt('03:36');
+        $schedule->command('package:sync:downloads')->dailyAt('03:01');
+        $schedule->command('package:sync:information')->dailyAt('04:01');
+        $schedule->command('package:calc:downloads')->dailyAt('05:01');
+        $schedule->command('package:calc:weights')->dailyAt('05:21');
     }
 
     /**
