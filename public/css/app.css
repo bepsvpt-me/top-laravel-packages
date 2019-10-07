@@ -7,11 +7,15 @@ a {
   text-decoration: none !important;
 }
 
-.homepage {
-  color: inherit !important;
+table th, table td {
+  white-space: nowrap;
 }
 
 .description {
-  max-width: 20vw;
+  white-space: initial;
   word-wrap: break-word;
+}
+
+.dataTables_wrapper .row:last-child {
+  margin-top: 1rem;
 }
