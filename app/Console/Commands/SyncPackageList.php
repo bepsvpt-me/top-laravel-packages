@@ -82,7 +82,7 @@ final class SyncPackageList extends Command
         foreach ($packages as $package) {
             $model = Package::query()->updateOrCreate(
                 ['name' => $package['name']],
-                Arr::only($package, $fields),
+                Arr::only($package, $fields)
             );
 
             if ($model->isDirty()) {
