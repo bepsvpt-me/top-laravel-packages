@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use GuzzleHttp\Client;
+use Illuminate\Console\Command as BaseCommand;
 
-abstract class Command extends \Illuminate\Console\Command
+abstract class Command extends BaseCommand
 {
     /**
      * @var Client
