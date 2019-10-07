@@ -46,7 +46,7 @@ final class SyncPackageInformation extends Command
 
                 $version = $this->latestVersion($data['versions']);
 
-                $requires = $data['versions'][$version]['require'];
+                $requires = $data['versions'][$version]['require'] ?? [];
 
                 $package->update([
                     'dependents' => $data['dependents'],
@@ -59,6 +59,8 @@ final class SyncPackageInformation extends Command
                     'min_laravel_version' => $this->minLaravelVersion($requires['laravel/framework'] ?? $requires['illuminate/support'] ?? null),
                 ]);
             }
+
+            sleep(5);
         });
 
         $this->info('Package information sync successfully.');
