@@ -33,9 +33,9 @@
     <tbody>
       @foreach ($packages as $package)
         <tr>
-          <td class="text-center align-middle">{{ $loop->iteration }}</td>
-          <td class="align-middle">{{ number_format($package->getAttribute('downloads')) }}</td>
-          <td class="align-middle">{{ number_format($package->favers) }}</td>
+          <td class="align-middle text-center">{{ $loop->iteration }}</td>
+          <td class="align-middle text-center">{{ number_format($package->getAttribute('downloads')) }}</td>
+          <td class="align-middle text-center">{{ number_format($package->favers) }}</td>
           <td class="align-middle">
             <a
               href="{{ $package->url }}"
@@ -44,8 +44,8 @@
             >{{ $package->name }}</a>
           </td>
           <td class="description">{{ $package->description ?: '-' }}</td>
-          <td class="text-center align-middle">{{ $package->min_php_version ?: '-' }}</td>
-          <td class="text-center align-middle">{{ $package->min_laravel_version ?: '-' }}</td>
+          <td class="align-middle text-center">{{ $package->min_php_version ?: '-' }}</td>
+          <td class="align-middle text-center">{{ $package->min_laravel_version ?: '-' }}</td>
         </tr>
       @endforeach
     </tbody>
