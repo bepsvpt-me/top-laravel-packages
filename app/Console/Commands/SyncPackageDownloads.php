@@ -2,20 +2,20 @@
 
 namespace App\Console\Commands;
 
-use App\Download;
 use App\Package;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Database\Eloquent\Collection;
-use Log;
+use Illuminate\Support\Facades\Log;
 
-class SyncPackageDownloads extends Command
+final class SyncPackageDownloads extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:package-downloads';
+    protected $signature = 'package:sync:downloads';
 
     /**
      * The console command description.
@@ -27,31 +27,26 @@ class SyncPackageDownloads extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $packages = Package::get(['id', 'url']);
+        Package::all(['id', 'url'])->chunk(10)->each(function (Collection $packages) {
+            $results = Promise\settle($this->urls($packages))->wait();
 
-        $packages->chunk(10)->each(function (Collection $packages) {
-            $results = Promise\settle($this->asyncUrls($packages))->wait();
+            /** @var Package $package */
 
             foreach ($packages as $package) {
-                $downloads = $this->parsePromiseResponse($package->getKey(), $results);
-
-                foreach ($downloads as $date => $value) {
-                    Download::firstOrNew([
-                        'package_id' => $package->getKey(),
-                        'date' => $date,
-                        'type' => 'daily',
-                    ])
+                foreach ($this->retrieve($package->getKey(), $results) as $date => $value) {
+                    $package->downloads()
+                        ->firstOrNew(['date' => $date, 'type' => 'daily'])
                         ->fill(['downloads' => $value])
                         ->save();
                 }
             }
         });
 
-        $this->info('Command execute successfully.');
+        $this->info('Package downloads information sync successfully.');
     }
 
     /**
@@ -61,7 +56,7 @@ class SyncPackageDownloads extends Command
      *
      * @return array
      */
-    protected function asyncUrls(Collection $packages): array
+    protected function urls(Collection $packages): array
     {
         $urls = $packages->mapWithKeys(function (Package $package) {
             $download = $package->downloads()
@@ -71,7 +66,7 @@ class SyncPackageDownloads extends Command
 
             $url = sprintf('%s/stats/all.json?average=daily', $package->url);
 
-            if (! is_null($download)) {
+            if (!is_null($download)) {
                 $url = sprintf('%s&from=%s', $url, $download->date);
             }
 
@@ -89,22 +84,21 @@ class SyncPackageDownloads extends Command
      *
      * @return array
      */
-    protected function parsePromiseResponse(int $key, array $haystack): array
+    protected function retrieve(int $key, array $haystack): array
     {
-        /** @var \GuzzleHttp\Psr7\Response $response */
+        /** @var Response $response */
+
         $response = $haystack[$key]['value'];
 
         if (200 !== $response->getStatusCode()) {
-            Log::error('failed to fetch package download information', [
+            Log::error('[package:sync:downloads] Failed to fetch package downloads information.', [
                 'id' => $key,
             ]);
 
             return [];
         }
 
-        $content = $response->getBody()->getContents();
-
-        $data = json_decode($content, true);
+        $data = json_decode($response->getBody()->getContents(), true);
 
         return array_combine($data['labels'], $data['values']);
     }
