@@ -6,14 +6,14 @@ use App\Package;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 
-class CalculateWeights extends Command
+final class CalculateWeights extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'calc:weight';
+    protected $signature = 'package:calc:weights';
 
     /**
      * The console command description.
@@ -25,56 +25,25 @@ class CalculateWeights extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
-        $packages = $this->packages();
-
-        $weightBoundaries = $this->weightBoundaries($packages->count());
-
-        $weightBoundary = array_pop($weightBoundaries);
+        $chunks = Package::query()
+            ->orderByDesc('downloads')
+            ->get(['id', 'downloads'])
+            ->split(Package::TOTAL_WEIGHTS);
 
         $weight = 1;
 
-        foreach ($packages as $index => $package) {
-            if ($index > $weightBoundary) {
-                ++$weight;
+        /** @var Collection $packages */
 
-                $weightBoundary = array_pop($weightBoundaries);
-            }
-
-            $package->update(['weights' => $weight]);
+        foreach ($chunks as $packages) {
+            Package::query()
+                ->whereIn('id', $packages->pluck('id')->toArray())
+                ->update(['weights' => $weight++]);
         }
 
-        $this->info('Command execute successfully.');
-    }
-
-    /**
-     * Get packages downloads information.
-     *
-     * @return Collection
-     */
-    protected function packages(): Collection
-    {
-        return Package::orderByDesc('downloads')
-            ->get(['id', 'downloads']);
-    }
-
-    /**
-     * Get packages weights boundaries.
-     *
-     * @param $total
-     *
-     * @return array
-     */
-    protected function weightBoundaries($total): array
-    {
-        $gap = intval(ceil($total / Package::TOTAL_WEIGHTS));
-
-        // use reverse oder in order to use array_pop instead of array_shift
-        return array_map(function ($weight) use ($gap) {
-            return $weight * $gap;
-        }, range(Package::TOTAL_WEIGHTS, 1));
+        $this->info('Package weights calculate successfully.');
     }
 }
