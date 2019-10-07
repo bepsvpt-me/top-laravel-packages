@@ -3,30 +3,31 @@
 namespace App\Console\Commands;
 
 use App\Package;
-use Log;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
-class SyncPackagesList extends Command
+final class SyncPackageList extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:packages-list';
+    protected $signature = 'package:sync:list';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync laravel packages list.';
+    protected $description = 'Sync laravel package list.';
 
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $url = 'https://packagist.org/search.json?tags=laravel&type=library&per_page=100&page=1';
 
@@ -35,16 +36,16 @@ class SyncPackagesList extends Command
                 break;
             }
 
-            $this->saveToDatabase($data['results']);
+            $this->save($data['results']);
 
-            if (! isset($data['next'])) {
+            if (!isset($data['next'])) {
                 break;
             }
 
             $url = urldecode($data['next']);
         }
 
-        $this->info('Command execute successfully.');
+        $this->info('Laravel packages list sync successfully.');
     }
 
     /**
@@ -58,15 +59,13 @@ class SyncPackagesList extends Command
     {
         $response = $this->client->get($url, ['http_errors' => false]);
 
-        if (200 !== $response->getStatusCode()) {
-            Log::error('failed to sync package list');
-
-            return [];
+        if (200 === $response->getStatusCode()) {
+            return json_decode($response->getBody()->getContents(), true);
         }
 
-        $content = $response->getBody()->getContents();
+        Log::error('[package:sync:list] Failed to sync package list.');
 
-        return json_decode($content, true);
+        return [];
     }
 
     /**
@@ -76,18 +75,18 @@ class SyncPackagesList extends Command
      *
      * @return void
      */
-    protected function saveToDatabase(array $packages): void
+    protected function save(array $packages): void
     {
+        $fields = ['name', 'description', 'url', 'repository', 'downloads', 'favers'];
+
         foreach ($packages as $package) {
-            $model = Package::updateOrCreate(['name' => $package['name']],
-                array_only($package, [
-                    'name', 'description', 'url', 'repository',
-                    'downloads', 'favers',
-                ])
+            $model = Package::query()->updateOrCreate(
+                ['name' => $package['name']],
+                Arr::only($package, $fields),
             );
 
             if ($model->isDirty()) {
-                Log::error('could not create or update package', [
+                Log::error('[package:sync:list] Could not create or update package.', [
                     'name' => $package['name'],
                 ]);
             }
