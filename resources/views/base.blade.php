@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/datatables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <title>Top 1000 Laravel Packages</title>
+    <title>@yield('title') | Laravel Packages</title>
   </head>
   <body>
     <header class="container-fluid">

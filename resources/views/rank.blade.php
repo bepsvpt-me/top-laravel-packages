@@ -14,13 +14,18 @@
 
 @section('header')
   <div class="text-right">
-    <a href="{{ route('ranking', ['type' => $type, 'date' => $last->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}">
-      Prev {{ ucfirst($uType) }}
-    </a>
+    @if ($last->isAfter('2012-06-01'))
+      <a
+        href="{{ route('ranking', ['type' => $type, 'date' => $last->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
+      >Prev {{ ucfirst($uType) }}</a>
+    @endif
 
-    <a class="ml-2" href="{{ route('ranking', ['type' => $type, 'date' => $next->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}">
-      Next {{ ucfirst($uType) }}
-    </a>
+    @unless ($next->isFuture())
+      <a
+        class="ml-2"
+        href="{{ route('ranking', ['type' => $type, 'date' => $next->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
+      >Next {{ ucfirst($uType) }}</a>
+    @endunless
   </div>
 @endsection
 
@@ -36,7 +41,7 @@
     </thead>
 
     <tbody>
-      @forelse($ranks as $rank)
+      @forelse ($ranks as $rank)
         <tr>
           <td class="text-center align-middle">{{ $loop->iteration }}</td>
           <td class="text-center">{{ number_format($rank->downloads) }}</td>

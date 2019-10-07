@@ -1,6 +1,6 @@
 @extends('base')
 
-@section('title', 'Top 1000 Laravel Packages')
+@section('title', 'Top 1,000 Laravel Packages')
 
 @section('header')
   @php($date = now()->subDays(2))
@@ -31,7 +31,7 @@
     </thead>
 
     <tbody>
-      @foreach($packages as $package)
+      @foreach ($packages as $package)
         <tr>
           <td class="text-center align-middle">{{ $loop->iteration }}</td>
           <td class="align-middle">{{ number_format($package->getAttribute('downloads')) }}</td>
