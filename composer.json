@@ -1,7 +1,7 @@
 {
-  "name": "laravel/laravel",
-  "description": "The Laravel Framework.",
-  "keywords": ["framework", "laravel"],
+  "name": "bepsvpt/laravel-top-packages",
+  "description": "Top 1,000 downloads laravel packages.",
+  "keywords": ["laravel", "packages"],
   "license": "MIT",
   "type": "project",
   "require": {
