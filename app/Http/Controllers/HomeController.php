@@ -4,21 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Download;
 use App\Package;
-use Cache;
 use DateTime;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
     /**
-     * Homepage.
+     * Package list.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
-        $packages = Cache::remember('package-list', 60, function () {
-            $packages = Package::orderByDesc('downloads')
+        $packages = Cache::remember('package-list', 60 * 60, function () {
+            $packages = Package::query()
+                ->orderByDesc('downloads')
                 ->orderByDesc('favers')
                 ->get();
 
@@ -34,16 +38,22 @@ class HomeController extends Controller
      * @param string $type
      * @param string $date
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
-    public function ranking(string $type, string $date)
+    public function ranking(string $type, string $date): View
     {
-        $unifiedDate = $this->checkParameters($type, $date);
+        try {
+            $date = DateTime::createFromFormat($this->format($type), $date)->format('Y-m-d');
+        } catch (Exception $e) {
+            abort(404);
+        }
 
-        $ranks = Cache::remember(sprintf('package-ranking-%s-%s', $type, $date), 60, function () use ($type, $unifiedDate) {
+        $key = sprintf('package-ranking-%s-%s', $type, $date);
+
+        $ranks = Cache::remember($key, 60 * 60, function () use ($type, $date) {
             $ranks = Download::with('package:packages.id,name,url,description')
                 ->where('type', $type)
-                ->where('date', $unifiedDate)
+                ->where('date', $date)
                 ->orderByDesc('downloads')
                 ->get();
 
@@ -54,30 +64,25 @@ class HomeController extends Controller
     }
 
     /**
-     * Validate ranking page parameters.
+     * Get type format.
      *
      * @param string $type
-     * @param string $date
      *
      * @return string
      */
-    protected function checkParameters(string $type, string $date): string
+    protected function format(string $type): string
     {
         switch ($type) {
-            case 'daily': $format = 'Y-m-d'; break;
-            case 'weekly': $format = 'Y-m-d'; break;
-            case 'monthly': $format = 'Y-m'; break;
-            case 'yearly': $format = 'Y'; break;
-            default: abort(404);
+            case 'daily':
+            case 'weekly':
+                return '!Y-m-d';
+            case 'monthly':
+                return '!Y-m';
+            case 'yearly':
+                return '!Y';
+            default:
+                return abort(404);
         }
-
-        $datetime = DateTime::createFromFormat(sprintf('!%s', $format), $date);
-
-        abort_unless($datetime, 404);
-
-        abort_if($datetime->format($format) !== $date, 404);
-
-        return $datetime->format('Y-m-d');
     }
 
     /**
@@ -87,7 +92,7 @@ class HomeController extends Controller
      *
      * @return Collection
      */
-    protected function filterOfficialPackages(Collection $collection)
+    protected function filterOfficialPackages(Collection $collection): Collection
     {
         return $collection->filter(function ($model) {
             if ($model instanceof Package) {
@@ -98,7 +103,7 @@ class HomeController extends Controller
                 return true;
             }
 
-            return ! str_contains($name, ['laravel/', 'illuminate/']);
+            return !Str::contains($name, ['laravel/', 'illuminate/']);
         });
     }
 }
