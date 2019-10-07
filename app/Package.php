@@ -3,7 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $url
+ */
 class Package extends Model
 {
     const TOTAL_WEIGHTS = 15;
@@ -18,9 +22,9 @@ class Package extends Model
     /**
      * Get the downloads for the package.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function downloads()
+    public function downloads(): HasMany
     {
         return $this->hasMany(Download::class);
     }
