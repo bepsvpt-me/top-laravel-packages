@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property string $date
+ * @property Package $package
  */
 class Download extends Model
 {
