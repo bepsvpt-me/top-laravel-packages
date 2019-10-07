@@ -19,15 +19,17 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param Schedule $schedule
+     *
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('sync:packages-list')->dailyAt('02:00');
-        $schedule->command('sync:package-downloads')->dailyAt('03:00');
-        $schedule->command('calc:download')->dailyAt('04:00');
-        $schedule->command('calc:weight')->dailyAt('05:00');
+        $schedule->command('package:sync:list')->dailyAt('02:01');
+        $schedule->command('package:sync:downloads')->dailyAt('02:21');
+        $schedule->command('package:sync:information')->dailyAt('02:46');
+        $schedule->command('package:calc:downloads')->dailyAt('03:21');
+        $schedule->command('package:calc:weights')->dailyAt('03:36');
     }
 
     /**
@@ -38,7 +40,5 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         $this->load(__DIR__.'/Commands');
-
-        require base_path('routes/console.php');
     }
 }
