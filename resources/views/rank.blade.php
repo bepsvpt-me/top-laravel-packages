@@ -43,8 +43,8 @@
     <tbody>
       @forelse ($ranks as $rank)
         <tr>
-          <td class="text-center align-middle">{{ $loop->iteration }}</td>
-          <td class="text-center">{{ number_format($rank->downloads) }}</td>
+          <td class="align-middle text-center">{{ $loop->iteration }}</td>
+          <td class="align-middle text-center">{{ number_format($rank->downloads) }}</td>
           <td class="align-middle">
             <a href="{{ $rank->package->url }}" target="_blank" rel="noopener">
               {{ $rank->package->name }}
