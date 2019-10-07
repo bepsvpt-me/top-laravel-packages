@@ -8,14 +8,14 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 
-class CalculateDownloads extends Command
+final class CalculateDownloads extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'calc:download';
+    protected $signature = 'package:calc:downloads';
 
     /**
      * The console command description.
@@ -25,87 +25,52 @@ class CalculateDownloads extends Command
     protected $description = 'Calculate package weekly, monthly and yearly downloads.';
 
     /**
-     * The ranking supports types.
-     *
-     * @var array
-     */
-    protected $types = [
-        'weekly',
-        'monthly',
-        'yearly',
-    ];
-
-    /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
         Package::all(['id'])->each(function (Package $package) {
-            foreach ($this->types as $type) {
-                $downloads = $this->getPackageDownloads($package->getKey(), $type);
-
-                $groupOfDays = $downloads->groupBy(function (Download $download) use ($type) {
-                    $method = sprintf('startOf%s', ucfirst(substr($type, 0, -2)));
-
-                    return Carbon::parse($download->date)->{$method}()->toDateString();
-                });
-
-                $groupOfDays->each(function (Collection $downloads, $date) use ($type) {
-                    Download::firstOrNew([
-                        'package_id' => $downloads->first()->package_id,
-                        'date' => $date,
-                        'type' => $type,
-                    ])
-                        ->fill(['downloads' => $downloads->sum('downloads')])
-                        ->save();
-                });
+            foreach (['weekly', 'monthly', 'yearly'] as $type) {
+                $this->downloads($package, $type)
+                    ->groupBy(function (Download $download) use ($type) {
+                        return Carbon::parse($download->date)
+                            ->{sprintf('startOf%s', ucfirst(substr($type, 0, -2)))}()
+                            ->toDateString();
+                    })
+                    ->each(function (Collection $downloads, $date) use ($package, $type) {
+                        $package->downloads()
+                            ->firstOrNew(['date' => $date, 'type' => $type])
+                            ->fill(['downloads' => $downloads->sum('downloads')])
+                            ->save();
+                    });
             }
         });
     }
 
     /**
-     * Get package downloads information.
+     * Get package downloads.
      *
-     * @param int    $packageId
+     * @param Package $package
      * @param string $type
      *
      * @return Collection
      */
-    protected function getPackageDownloads(int $packageId, string $type): Collection
+    protected function downloads(Package $package, string $type): Collection
     {
-        $date = $this->getPackageNewestDownloadDate($packageId, $type);
-
-        $downloads = Download::where('package_id', $packageId)
-            ->where('type', 'daily');
-
-        if (! is_null($date)) {
-            $downloads = $downloads->where('date', '>=', $date);
-        }
-
-        return $downloads->get();
-    }
-
-    /**
-     * Get latest download information.
-     *
-     * @param int    $packageId
-     * @param string $type
-     *
-     * @return null|string
-     */
-    protected function getPackageNewestDownloadDate(int $packageId, string $type): ?string
-    {
-        $download = Download::where('package_id', $packageId)
+        $download = $package->downloads()
             ->where('type', $type)
             ->latest('date')
             ->first();
 
-        if (is_null($download)) {
-            return null;
+        $downloads = $package->downloads()
+            ->where('type', '=', 'daily');
+
+        if (!is_null($download)) {
+            $downloads->where('date', '>=', $download->date);
         }
 
-        return $download->date;
+        return $downloads->get();
     }
 }
