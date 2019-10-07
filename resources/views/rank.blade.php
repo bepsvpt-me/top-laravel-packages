@@ -9,7 +9,7 @@
 @endphp
 
 @section('title')
-  {{ ucfirst($type) }} Downloads Ranking - {{ request()->route('date') }}
+  {{ ucfirst($type) }} Ranking - {{ request()->route('date') }}
 @endsection
 
 @section('header')
@@ -45,7 +45,7 @@
               {{ $rank->package->name }}
             </a>
           </td>
-          <td>{{ $rank->package->description ?: '-' }}</td>
+          <td class="description">{{ $rank->package->description ?: '-' }}</td>
         </tr>
       @empty
         <tr>
