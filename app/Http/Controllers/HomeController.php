@@ -39,14 +39,22 @@ class HomeController extends Controller
      * @param string $date
      *
      * @return View
+     *
+     * @throws Exception
      */
     public function ranking(string $type, string $date): View
     {
-        try {
-            $date = DateTime::createFromFormat($this->format($type), $date)->format('Y-m-d');
-        } catch (Exception $e) {
-            abort(404);
-        }
+        $dateTime = DateTime::createFromFormat($this->format($type), $date);
+
+        abort_if($dateTime === false, 404);
+
+        $date = $dateTime->format('Y-m-d');
+
+        abort_if($date === false, 404);
+
+        abort_if($dateTime > new DateTime, 404);
+
+        abort_if(new DateTime('2012-05-31') > $dateTime, 404);
 
         $key = sprintf('package-ranking-%s-%s', $type, $date);
 
