@@ -77,7 +77,7 @@ final class SyncPackageList extends Command
      */
     protected function save(array $packages): void
     {
-        $fields = ['name', 'description', 'url', 'repository', 'downloads', 'favers'];
+        $fields = ['description', 'url', 'repository', 'downloads', 'favers'];
 
         foreach ($packages as $package) {
             $model = Package::query()->updateOrCreate(
