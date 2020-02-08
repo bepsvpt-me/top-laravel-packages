@@ -13,16 +13,19 @@
 @endsection
 
 @section('header')
-  <div class="text-right">
+  <div class="text-md-right mt-2 mt-md-0">
     @if ($last->isAfter('2012-06-01'))
       <a
         href="{{ route('ranking', ['type' => $type, 'date' => $last->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
       >Prev {{ ucfirst($uType) }}</a>
     @endif
 
+    @if ($last->isAfter('2012-06-01') && !$next->isFuture())
+      @include('components.dot')
+    @endif
+
     @unless ($next->isFuture())
       <a
-        class="ml-2"
         href="{{ route('ranking', ['type' => $type, 'date' => $next->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
       >Next {{ ucfirst($uType) }}</a>
     @endunless
@@ -31,26 +34,28 @@
 
 @section('main')
   <table class="table table-striped table-bordered">
-    <thead>
+    <thead class="thead-light">
       <tr>
-        <th>#</th>
-        <th>Downloads</th>
-        <th>Name</th>
-        <th>Description</th>
+        <th class="sticky-top text-center">#</th>
+        <th class="sticky-top text-center">Downloads</th>
+        <th class="sticky-top">Name</th>
+        <th class="sticky-top">Description</th>
       </tr>
     </thead>
 
     <tbody>
       @forelse ($ranks as $rank)
         <tr>
-          <td class="align-middle text-center">{{ $loop->iteration }}</td>
-          <td class="align-middle text-center">{{ number_format($rank->downloads) }}</td>
-          <td class="align-middle">
-            <a href="{{ $rank->package->url }}" target="_blank" rel="noopener">
-              {{ $rank->package->name }}
-            </a>
+          <td class="text-center">{{ number_format($loop->iteration) }}</td>
+          <td class="text-right">{{ number_format($rank->downloads) }}</td>
+          <td class="name text-break text-wrap">
+            @component('components.external-link')
+              @slot('href', $rank->package->url)
+
+              <span>{{ $rank->package->name }}</span>
+            @endcomponent
           </td>
-          <td class="description">{{ $rank->package->description ?: '-' }}</td>
+          <td class="description text-break text-wrap">{{ $rank->package->description ?: '-' }}</td>
         </tr>
       @empty
         <tr>
