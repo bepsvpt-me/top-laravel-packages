@@ -1,21 +1,27 @@
-header {
-  padding-left: 30px;
-  padding-right: 30px;
+html, body {
+  height: 100%;
 }
 
-a {
-  text-decoration: none !important;
+main {
+  min-height: 25rem;
+}
+
+table {
+  margin-bottom: 0 !important;
 }
 
 table th, table td {
   white-space: nowrap;
 }
 
-.description {
-  white-space: initial;
-  word-wrap: break-word;
+table td {
+  vertical-align: middle !important;
 }
 
-.dataTables_wrapper .row:last-child {
-  margin-top: 1rem;
+.name {
+  min-width: 15rem;
+}
+
+.description {
+  min-width: 30rem;
 }
