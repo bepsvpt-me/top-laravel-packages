@@ -1,0 +1,27 @@
+html, body {
+  height: 100%;
+}
+
+main {
+  min-height: 25rem;
+}
+
+table {
+  margin-bottom: 0 !important;
+
+  th, td {
+    white-space: nowrap;
+  }
+
+  td {
+    vertical-align: middle !important;
+  }
+}
+
+.name {
+  min-width: 15rem;
+}
+
+.description {
+  min-width: 30rem;
+}
