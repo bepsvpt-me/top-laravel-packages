@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use Bepsvpt\SecureHeaders\SecureHeadersMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
 use Illuminate\Http\Middleware\SetCacheHeaders;
@@ -18,6 +19,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         CheckForMaintenanceMode::class,
+        SecureHeadersMiddleware::class,
     ];
 
     /**
