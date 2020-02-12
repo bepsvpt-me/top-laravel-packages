@@ -13,6 +13,7 @@
   "require": {
     "php": "^7.2",
     "ext-json": "*",
+    "bepsvpt/secure-headers": "~5.5",
     "composer/semver": "~1.5",
     "doctrine/dbal": "~2.10",
     "fideloper/proxy": "~4.2",
