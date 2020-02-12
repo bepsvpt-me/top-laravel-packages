@@ -1,8 +1,11 @@
 {
   "name": "bepsvpt/laravel-top-packages",
   "description": "Top 1,000 downloads laravel packages.",
-  "keywords": ["laravel", "packages"],
-  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "packages"
+  ],
+  "license": "AGPL-3.0-only",
   "type": "project",
   "authors": [
     {
