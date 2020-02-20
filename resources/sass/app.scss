@@ -18,6 +18,14 @@ table {
   }
 }
 
+.no-select {
+  user-select: none;
+}
+
+.home-sticky-top-fixer {
+  top: 2.35rem;
+}
+
 .name {
   min-width: 15rem;
 }
