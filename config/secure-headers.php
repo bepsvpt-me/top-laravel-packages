@@ -472,12 +472,6 @@ return [
 
         'style-src' => [
             'self' => true,
-
-            'unsafe-inline' => true,
-
-            'report-sample' => false,
-
-            'add-generated-nonce' => false,
         ],
 
         'img-src' => [
