@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\RequestLanguageMiddleware;
 use Bepsvpt\SecureHeaders\SecureHeadersMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
@@ -20,6 +21,7 @@ class Kernel extends HttpKernel
     protected $middleware = [
         CheckForMaintenanceMode::class,
         SecureHeadersMiddleware::class,
+        RequestLanguageMiddleware::class,
     ];
 
     /**
