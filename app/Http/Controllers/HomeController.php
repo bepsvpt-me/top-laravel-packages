@@ -102,13 +102,22 @@ class HomeController extends Controller
      */
     protected function filterOfficialPackages(Collection $collection): Collection
     {
-        return $collection->filter(function ($model) {
+        $officialIncludes = [
+            'facade/ignition',
+            'nunomaduro/collision',
+        ];
+
+        return $collection->filter(function ($model) use ($officialIncludes) {
             if ($model instanceof Package) {
                 $name = $model->name;
             } elseif ($model instanceof Download) {
                 $name = $model->package->name;
             } else {
                 return true;
+            }
+
+            if (in_array($name, $officialIncludes, true)) {
+                return false;
             }
 
             return !Str::contains($name, ['laravel/', 'illuminate/']);
