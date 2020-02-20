@@ -6,6 +6,7 @@ use App\Package;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 final class SyncPackageDownloads extends Command
@@ -100,6 +101,6 @@ final class SyncPackageDownloads extends Command
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        return array_combine($data['labels'], $data['values']);
+        return array_combine($data['labels'], Arr::first($data['values']));
     }
 }
