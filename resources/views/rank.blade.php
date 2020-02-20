@@ -9,7 +9,7 @@
 @endphp
 
 @section('title')
-  {{ ucfirst($type) }} Ranking - {{ request()->route('date') }}
+  {{ __(sprintf('base.%s_ranking', $type)) }} - {{ request()->route('date') }}
 @endsection
 
 @section('header')
@@ -17,7 +17,7 @@
     @if ($last->isAfter('2012-06-01'))
       <a
         href="{{ route('ranking', ['type' => $type, 'date' => $last->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
-      >Prev {{ ucfirst($uType) }}</a>
+      >{{ __(sprintf('base.prev_%s', $uType)) }}</a>
     @endif
 
     @if ($last->isAfter('2012-06-01') && !$next->isFuture())
@@ -27,7 +27,7 @@
     @unless ($next->isFuture())
       <a
         href="{{ route('ranking', ['type' => $type, 'date' => $next->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
-      >Next {{ ucfirst($uType) }}</a>
+      >{{ __(sprintf('base.next_%s', $uType)) }}</a>
     @endunless
   </div>
 @endsection
@@ -37,9 +37,15 @@
     <thead class="thead-light">
       <tr>
         <th class="sticky-top text-center">#</th>
-        <th class="sticky-top text-center">Downloads</th>
-        <th class="sticky-top">Name</th>
-        <th class="sticky-top">Description</th>
+        <th class="sticky-top text-center">
+          {{ __('base.downloads') }}
+        </th>
+        <th class="sticky-top">
+          {{ __('base.name') }}
+        </th>
+        <th class="sticky-top">
+          {{ __('base.description') }}
+        </th>
       </tr>
     </thead>
 
@@ -59,7 +65,7 @@
         </tr>
       @empty
         <tr>
-          <td colspan="4" class="text-center">It seems nothing is here!</td>
+          <td colspan="4" class="text-center">{{ __('base.empty_result') }}</td>
         </tr>
       @endforelse
     </tbody>

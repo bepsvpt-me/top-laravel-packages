@@ -5,15 +5,30 @@
 @section('header')
   @php($date = now()->subDays(2))
 
-  <div class="text-md-right mt-3 mt-md-0">
-    <span>Ranking：</span>
-    <a href="{{ route('ranking', ['type' => 'daily', 'date' => $date->toDateString()]) }}">Daily</a>
+  <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+    <span>{{ __('base.ranking') }}：</span>
+
+    <a href="{{ route('ranking', ['type' => 'daily', 'date' => $date->toDateString()]) }}">
+      {{ __('base.daily') }}
+    </a>
+
     @include('components.dot')
-    <a href="{{ route('ranking', ['type' => 'weekly', 'date' => $date->startOfWeek()->toDateString()]) }}">Weekly</a>
+
+    <a href="{{ route('ranking', ['type' => 'weekly', 'date' => $date->startOfWeek()->toDateString()]) }}">
+      {{ __('base.weekly') }}
+    </a>
+
     @include('components.dot')
-    <a href="{{ route('ranking', ['type' => 'monthly', 'date' => $date->format('Y-m')]) }}">Monthly</a>
+
+    <a href="{{ route('ranking', ['type' => 'monthly', 'date' => $date->format('Y-m')]) }}">
+      {{ __('base.monthly') }}
+    </a>
+
     @include('components.dot')
-    <a href="{{ route('ranking', ['type' => 'yearly', 'date' => $date->year]) }}">Yearly</a>
+
+    <a href="{{ route('ranking', ['type' => 'yearly', 'date' => $date->year]) }}">
+      {{ __('base.yearly') }}
+    </a>
   </div>
 @endsection
 
@@ -22,24 +37,34 @@
     <thead class="thead-light">
       <tr>
         <th class="sticky-top text-center" rowspan="2">#</th>
-        <th class="sticky-top text-center" rowspan="2">Downloads</th>
-        <th class="sticky-top text-center" rowspan="2">Favorites</th>
-        <th class="sticky-top" rowspan="2">Name</th>
-        <th class="sticky-top" rowspan="2">Description</th>
-        <th class="sticky-top pb-0 text-center" colspan="2">Minimum Requirement</th>
+
+        <th class="sticky-top text-center" rowspan="2">
+          {{ __('base.downloads') }}
+        </th>
+
+        <th class="sticky-top text-center" rowspan="2">
+          {{ __('base.favorites') }}
+        </th>
+
+        <th class="sticky-top" rowspan="2">
+          {{ __('base.name') }}
+        </th>
+
+        <th class="sticky-top" rowspan="2">
+          {{ __('base.description') }}
+        </th>
+
+        <th class="sticky-top pb-0 text-center" colspan="2">
+          {{ __('base.minimum_requirement') }}
+        </th>
       </tr>
 
       <tr>
-        <th
-          class="sticky-top pt-0 text-center"
-          style="top: 2.35rem;"
-        >
+        <th class="sticky-top pt-0 text-center home-sticky-top-fixer">
           PHP
         </th>
-        <th
-          class="sticky-top pt-0 text-center"
-          style="top: 2.35rem;"
-        >
+
+        <th class="sticky-top pt-0 text-center home-sticky-top-fixer">
           Laravel
         </th>
       </tr>
