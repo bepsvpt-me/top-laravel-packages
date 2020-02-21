@@ -7,6 +7,15 @@ mix.disableNotifications()
   .sourceMaps();
 
 if (mix.inProduction()) {
-  mix.purgeCss()
+  const options = {
+    postCss: [
+      require('postcss-discard-comments')({
+        removeAll: true
+      })
+    ],
+  };
+
+  mix.options(options)
+    .purgeCss()
     .version();
 }
