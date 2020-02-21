@@ -478,6 +478,10 @@ return [
             'self' => true,
         ],
 
+        'connect-src' => [
+            'self' => true,
+        ],
+
         'default-src' => [
             //
         ],
