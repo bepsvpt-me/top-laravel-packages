@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class RequestLanguageMiddleware
+final class RequestLanguageMiddleware
 {
     /**
      * Handle an incoming request.

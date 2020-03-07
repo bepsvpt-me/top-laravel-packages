@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-class HomeController extends Controller
+final class HomeController extends Controller
 {
     /**
      * Package list.

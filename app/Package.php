@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string $url
  */
-class Package extends Model
+final class Package extends Model
 {
     const TOTAL_WEIGHTS = 15;
 

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $date
  * @property Package $package
  */
-class Download extends Model
+final class Download extends Model
 {
     /**
      * The attributes that aren't mass assignable.
