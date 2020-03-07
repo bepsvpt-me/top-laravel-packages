@@ -64,12 +64,12 @@
       "@php artisan package:discover"
     ],
     "update-project": [
-      "@php artisan down",
-      "@php artisan optimize:clear",
+      "@php artisan --ansi down",
+      "@php artisan --ansi optimize:clear",
       "git pull --rebase --autostash",
-      "@composer install --no-dev -o",
-      "@php artisan optimize",
-      "@php artisan up"
+      "@composer install --ansi --no-dev -o",
+      "@php artisan --ansi optimize",
+      "@php artisan --ansi up"
     ]
   },
   "config": {
