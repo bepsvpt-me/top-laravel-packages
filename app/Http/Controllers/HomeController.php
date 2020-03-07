@@ -104,6 +104,7 @@ class HomeController extends Controller
     {
         $officialIncludes = [
             'facade/ignition',
+            'fruitcake/laravel-cors',
             'nunomaduro/collision',
         ];
 
