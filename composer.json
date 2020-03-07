@@ -62,6 +62,14 @@
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
       "@php artisan package:discover"
+    ],
+    "upgrade": [
+      "@php artisan down",
+      "@php artisan optimize:clear",
+      "git pull --rebase --autostash",
+      "@composer install --no-dev -o",
+      "@php artisan optimize",
+      "@php artisan up"
     ]
   },
   "config": {
