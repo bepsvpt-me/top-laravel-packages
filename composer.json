@@ -63,7 +63,7 @@
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
       "@php artisan package:discover"
     ],
-    "upgrade": [
+    "update-project": [
       "@php artisan down",
       "@php artisan optimize:clear",
       "git pull --rebase --autostash",
