@@ -16,11 +16,13 @@
   "require": {
     "php": "^7.3",
     "ext-json": "*",
+    "ext-pdo": "*",
     "bepsvpt/secure-headers": "~6.0",
     "composer/semver": "~1.5",
     "doctrine/dbal": "~2.10",
     "fideloper/proxy": "~4.2",
     "guzzlehttp/guzzle": "~6.5",
+    "htmlmin/htmlmin": "~7.0",
     "laravel/framework": "~7.0",
     "laravel/tinker": "~2.0",
     "predis/predis": "~1.1"
