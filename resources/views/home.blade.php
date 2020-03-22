@@ -71,7 +71,7 @@
     </thead>
 
     <tbody>
-      @foreach ($packages as $package)
+      @forelse ($packages as $package)
         <tr>
           <td class="text-center">{{ $loop->iteration }}</td>
           <td class="text-right">{{ number_format($package->getAttribute('downloads')) }}</td>
@@ -87,7 +87,11 @@
           <td class="text-center">{{ $package->min_php_version ?: '-' }}</td>
           <td class="text-center">{{ $package->min_laravel_version ?: '-' }}</td>
         </tr>
-      @endforeach
+      @empty
+        <tr>
+          <td class="text-center" colspan="7">{{ __('base.empty_result') }}</td>
+        </tr>
+      @endforelse
     </tbody>
   </table>
 @endsection
