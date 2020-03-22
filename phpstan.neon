@@ -5,8 +5,11 @@ parameters:
     level: max
 
     paths:
-        - %currentWorkingDirectory%/app
-#        - %currentWorkingDirectory%/tests
+        - app
+        - bootstrap
+        - config
+        - routes
+        - tests
 
     ignoreErrors:
         -
