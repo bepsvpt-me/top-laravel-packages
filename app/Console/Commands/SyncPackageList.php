@@ -29,7 +29,7 @@ final class SyncPackageList extends Command
      */
     public function handle(): void
     {
-        $url = 'https://packagist.org/search.json?tags=laravel&type=library&per_page=100&page=1';
+        $url = 'https://packagist.org/search.json?tags[0]=laravel&type=library&per_page=100&page=1';
 
         while (true) {
             if (empty($data = $this->fetch($url))) {
@@ -45,7 +45,7 @@ final class SyncPackageList extends Command
             $url = urldecode($data['next']);
         }
 
-        $this->info('Laravel packages list sync successfully.');
+        $this->info('Laravel packages list syncs successfully.');
     }
 
     /**
@@ -57,15 +57,20 @@ final class SyncPackageList extends Command
      */
     protected function fetch(string $url): array
     {
-        $response = $this->client->get($url, ['http_errors' => false]);
+        $response = $this->client->get($url, [
+            'http_errors' => false,
+        ]);
 
-        if (200 === $response->getStatusCode()) {
-            return json_decode($response->getBody()->getContents(), true);
+        if (200 !== $response->getStatusCode()) {
+            Log::error('[package:sync:list] Sync package list failed.', [
+                'url' => $url,
+                'time' => time(),
+            ]);
+
+            return [];
         }
 
-        Log::error('[package:sync:list] Failed to sync package list.');
-
-        return [];
+        return json_decode($response->getBody()->getContents(), true);
     }
 
     /**
@@ -88,6 +93,7 @@ final class SyncPackageList extends Command
             if ($model->isDirty()) {
                 Log::error('[package:sync:list] Could not create or update package.', [
                     'name' => $package['name'],
+                    'data' => $packages,
                 ]);
             }
         }
