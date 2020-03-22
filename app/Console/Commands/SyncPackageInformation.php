@@ -38,6 +38,8 @@ final class SyncPackageInformation extends Command
 
         $this->output->progressStart($chunks->sum->count());
 
+        /** @var Collection $packages */
+
         foreach ($chunks as $packages) {
             try {
                 $responses = $this->responses($packages);
@@ -105,7 +107,7 @@ final class SyncPackageInformation extends Command
     /**
      * Get package information api urls.
      *
-     * @param Collection $packages
+     * @param Collection|Package[] $packages
      *
      * @return array<mixed>
      *
@@ -141,7 +143,7 @@ final class SyncPackageInformation extends Command
     {
         $all = array_keys($versions);
 
-        $stables = array_filter($all, function ($version) {
+        $stables = array_filter($all, function (string $version) {
             return 'stable' === VersionParser::parseStability($version);
         });
 

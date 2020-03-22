@@ -35,6 +35,8 @@ final class SyncPackageDownloads extends Command
 
         $this->output->progressStart($chunks->sum->count());
 
+        /** @var Collection $packages */
+
         foreach ($chunks as $packages) {
             try {
                 $responses = $this->responses($packages);
@@ -52,10 +54,14 @@ final class SyncPackageDownloads extends Command
 
                 $package = $packages->where('id', $key)->first();
 
-                $this->save($package, array_combine(
+                /** @var array<int> $downloads */
+
+                $downloads = array_combine(
                     $content['labels'],
                     $content['values'][$package->name]
-                ));
+                );
+
+                $this->save($package, $downloads);
             }
 
             $this->output->progressAdvance($packages->count());
