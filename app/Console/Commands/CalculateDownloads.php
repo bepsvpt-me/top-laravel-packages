@@ -31,7 +31,7 @@ final class CalculateDownloads extends Command
      */
     public function handle()
     {
-        Package::all(['id'])->each(function (Package $package) {
+        foreach (Package::all(['id']) as $package) {
             foreach (['weekly', 'monthly', 'yearly'] as $type) {
                 $this->downloads($package, $type)
                     ->groupBy(function (Download $download) use ($type) {
@@ -46,7 +46,7 @@ final class CalculateDownloads extends Command
                             ->save();
                     });
             }
-        });
+        }
     }
 
     /**

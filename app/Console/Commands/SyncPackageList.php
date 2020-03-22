@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Package;
+use Exception;
+use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 
 final class SyncPackageList extends Command
 {
@@ -20,7 +21,7 @@ final class SyncPackageList extends Command
      *
      * @var string
      */
-    protected $description = 'Sync laravel package list.';
+    protected $description = 'Sync Laravel package list.';
 
     /**
      * Execute the console command.
@@ -29,10 +30,12 @@ final class SyncPackageList extends Command
      */
     public function handle(): void
     {
-        $url = 'https://packagist.org/search.json?tags[0]=laravel&type=library&per_page=100&page=1';
+        $url = '/search.json?tags=laravel&type=library&per_page=100&page=1';
 
         while (true) {
-            if (empty($data = $this->fetch($url))) {
+            $data = $this->fetch($url);
+
+            if (empty($data)) {
                 break;
             }
 
@@ -45,32 +48,31 @@ final class SyncPackageList extends Command
             $url = urldecode($data['next']);
         }
 
-        $this->info('Laravel packages list syncs successfully.');
+        $this->info('Laravel package list syncs successfully.');
     }
 
     /**
-     * Fetch package search data.
+     * Fetch remote data.
      *
      * @param string $url
      *
-     * @return array<mixed>
+     * @return array<mixed>|null
      */
-    protected function fetch(string $url): array
+    protected function fetch(string $url): ?array
     {
-        $response = $this->client->get($url, [
-            'http_errors' => false,
-        ]);
+        try {
+            $response = $this->client->get($url);
 
-        if (200 !== $response->getStatusCode()) {
-            Log::error('[package:sync:list] Sync package list failed.', [
-                'url' => $url,
-                'time' => time(),
-            ]);
+            $content = $response->getBody()->getContents();
 
-            return [];
+            return json_decode($content, true);
+        } catch (TransferException $e) {
+            $this->fatal($e->getMessage(), ['url' => $url]);
+        } catch (Exception $e) {
+            $this->critical($e->getMessage(), ['url' => $url]);
         }
 
-        return json_decode($response->getBody()->getContents(), true);
+        return null;
     }
 
     /**
@@ -91,10 +93,10 @@ final class SyncPackageList extends Command
             );
 
             if ($model->isDirty()) {
-                Log::error('[package:sync:list] Could not create or update package.', [
-                    'name' => $package['name'],
-                    'data' => $packages,
-                ]);
+                $this->fatal(
+                    'Could not create or update package.',
+                    $packages
+                );
             }
         }
     }

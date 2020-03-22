@@ -29,4 +29,23 @@ final class Package extends Model
     {
         return $this->hasMany(Download::class);
     }
+
+    /**
+     * Get package synced at info.
+     *
+     * @return string
+     */
+    public function syncedAt(): string
+    {
+        if (!$this->exists) {
+            return '';
+        }
+
+        $download = $this->downloads()
+            ->where('type', 'daily')
+            ->orderByDesc('date')
+            ->first(['date']);
+
+        return optional($download)->date ?: '';
+    }
 }

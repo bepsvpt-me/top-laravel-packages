@@ -3,12 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Package;
-use GuzzleHttp\Promise;
-use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
+use Throwable;
+use function GuzzleHttp\Promise\unwrap;
 
 final class SyncPackageDownloads extends Command
 {
@@ -33,75 +31,112 @@ final class SyncPackageDownloads extends Command
      */
     public function handle(): void
     {
-        Package::all(['id', 'url'])->chunk(10)->each(function (Collection $packages) {
-            $results = Promise\settle($this->urls($packages))->wait();
+        $chunks = $this->packages();
 
-            /** @var Package $package */
+        $this->output->progressStart($chunks->sum->count());
 
-            foreach ($packages as $package) {
-                foreach ($this->retrieve($package->getKey(), $results) as $date => $value) {
-                    $package->downloads()
-                        ->firstOrNew(['date' => $date, 'type' => 'daily'])
-                        ->fill(['downloads' => $value])
-                        ->save();
-                }
-            }
-        });
+        foreach ($chunks as $packages) {
+            try {
+                $responses = $this->responses($packages);
+            } catch (Throwable $e) {
+                $this->fatal(
+                    'Failed to sync package downloads.',
+                    $packages->pluck('id')->toArray()
+                );
 
-        $this->info('Package downloads information sync successfully.');
-    }
-
-    /**
-     * Get package downloads api urls.
-     *
-     * @param Collection $packages
-     *
-     * @return array<PromiseInterface>
-     */
-    protected function urls(Collection $packages): array
-    {
-        $urls = $packages->mapWithKeys(function (Package $package) {
-            $download = $package->downloads()
-                ->where('type', 'daily')
-                ->orderByDesc('date')
-                ->first(['date']);
-
-            $url = sprintf('%s/stats/all.json?average=daily', $package->url);
-
-            if (!is_null($download)) {
-                $url = sprintf('%s&from=%s', $url, $download->date);
+                continue;
             }
 
-            return [$package->getKey() => $this->client->getAsync($url)];
-        });
+            foreach ($responses as $key => $content) {
+                /** @var Package $package */
 
-        return $urls->toArray();
-    }
+                $package = $packages->where('id', $key)->first();
 
-    /**
-     * Parse promise response and get data.
-     *
-     * @param int   $key
-     * @param array<mixed> $haystack
-     *
-     * @return array<mixed>
-     */
-    protected function retrieve(int $key, array $haystack): array
-    {
-        /** @var Response $response */
+                $this->save($package, array_combine(
+                    $content['labels'],
+                    $content['values'][$package->name]
+                ));
+            }
 
-        $response = $haystack[$key]['value'];
+            $this->output->progressAdvance($packages->count());
 
-        if (200 !== $response->getStatusCode()) {
-            Log::error('[package:sync:downloads] Failed to fetch package downloads information.', [
-                'id' => $key,
-            ]);
-
-            return [];
+            sleep(mt_rand(2, 5));
         }
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $this->output->progressFinish();
 
-        return array_combine($data['labels'], Arr::first($data['values']));
+        $this->info('Package downloads information syncs successfully.');
+    }
+
+    /**
+     * Get package chunks.
+     *
+     * @return Collection
+     */
+    protected function packages(): Collection
+    {
+        return Package::query()
+            ->get(['id', 'name'])
+            ->chunk(5);
+    }
+
+    /**
+     * Get api responses.
+     *
+     * @param Collection|Package[] $packages
+     *
+     * @return array<mixed>
+     *
+     * @throws Throwable
+     */
+    protected function responses(Collection $packages): array
+    {
+        $promises = [];
+
+        foreach ($packages as $package) {
+            $promises[$package->getKey()] =
+                $this->client->getAsync($this->url($package));
+        }
+
+        return array_map(function (Response $response) {
+            return json_decode(
+                $response->getBody()->getContents(),
+                true
+            );
+        }, unwrap($promises));
+    }
+
+    /**
+     * Get package downloads info api url.
+     *
+     * @param Package $package
+     *
+     * @return string
+     */
+    protected function url(Package $package): string
+    {
+        return sprintf(
+            '/packages/%s/stats/all.json?average=daily&from=%s',
+            $package->name,
+            $package->syncedAt()
+        );
+    }
+
+    /**
+     * Save package download info.
+     *
+     * @param Package $package
+     * @param array<int> $downloads
+     *
+     * @return void
+     */
+    protected function save(Package $package, array $downloads): void
+    {
+        foreach ($downloads as $date => $value) {
+            $package->downloads()
+                ->firstOrNew(['date' => $date, 'type' => 'daily'])
+                ->fill(['downloads' => $value])
+                ->save();
+        }
     }
 }
