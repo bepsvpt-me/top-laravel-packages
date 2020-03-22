@@ -14,6 +14,10 @@
   stopOnFailure="true"
 >
   <testsuites>
+    <testsuite name="Command">
+      <directory suffix="Test.php">./tests/Command</directory>
+    </testsuite>
+
     <testsuite name="Integration">
       <directory suffix="Test.php">./tests/Integration</directory>
     </testsuite>
