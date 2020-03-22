@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.operating-system }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
+        php-versions: ['7.3', '7.4']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP, Composer and Extensions
+        uses: shivammathur/setup-php@v1
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: dom, fileinfo, mbstring, sqlite3, xdebug
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-suggest
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --verbose
+
+      - name: Run PHP-CS-Fixer
+        run: vendor/bin/php-cs-fixer fix --verbose --dry-run
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit --verbose
