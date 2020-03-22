@@ -10,7 +10,7 @@ return [
      * Note: when server is empty string, it will not add to response header
      */
 
-    'server' => 'Laravel',
+    'server' => 'Top Laravel Package',
 
     /*
      * X-Content-Type-Options
@@ -58,7 +58,7 @@ return [
      * Note: it will not add to response header if the value is empty string.
      */
 
-    'x-power-by' => 'Laravel',
+    'x-power-by' => 'Top Laravel Package',
 
     /*
      * X-XSS-Protection
