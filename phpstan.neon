@@ -21,3 +21,23 @@ parameters:
             message: "#Cannot access property \\$name on App\\\\Package\\|null\\.#"
             count: 1
             path: app/Http/Controllers/HomeController.php
+
+        -
+            message: "#Cannot call method assertExitCode\\(\\) on Illuminate\\\\Testing\\\\PendingCommand\\|int\\.#"
+            count: 2
+            path: tests/Command/CalculateDownloadsTest.php
+
+        -
+            message: "#Cannot call method assertExitCode\\(\\) on Illuminate\\\\Testing\\\\PendingCommand\\|int\\.#"
+            count: 1
+            path: tests/Command/CalculateWeightsTest.php
+
+        -
+            message: "#Cannot access property \\$date on Illuminate\\\\Database\\\\Eloquent\\\\Model\\|false\\.#"
+            count: 1
+            path: tests/Unit/PackageModelTest.php
+
+        -
+            message: "#Unable to resolve the template type ExpectedType in call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\)#"
+            count: 1
+            path: tests/Unit/PackageModelTest.php

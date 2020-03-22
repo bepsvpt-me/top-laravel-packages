@@ -22,6 +22,8 @@ class PackageModelTest extends TestCase
             factory(Download::class)->make()
         );
 
+        $this->assertInstanceOf(Download::class, $download);
+
         $this->assertSame($download->date, $package->syncedAt());
     }
 }

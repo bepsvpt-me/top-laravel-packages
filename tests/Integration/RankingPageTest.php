@@ -74,7 +74,7 @@ class RankingPageTest extends TestCase
             ->assertSeeText('It seems nothing is here!');
     }
 
-    public function testDailyRecord()
+    public function testDailyRecord(): void
     {
         $name = 'hi/apple';
 

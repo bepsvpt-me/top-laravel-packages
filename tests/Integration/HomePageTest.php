@@ -26,7 +26,7 @@ class HomePageTest extends TestCase
             ->assertSeeText($package2->description);
     }
 
-    public function testHideOfficialPackages()
+    public function testHideOfficialPackages(): void
     {
         $package1 = factory(Package::class)->create([
             'name' => 'fruitcake/laravel-cors',
