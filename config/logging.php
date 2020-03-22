@@ -1,7 +1,5 @@
 <?php
 
-use Monolog\Handler\StreamHandler;
-
 return [
 
     /*
@@ -36,12 +34,7 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => ['daily', 'slack'],
-        ],
-
-        'single' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
-            'level' => 'debug',
+            'ignore_exceptions' => false,
         ],
 
         'daily' => [
@@ -57,24 +50,6 @@ return [
             'username' => 'Top Laravel Package',
             'emoji' => ':boom:',
             'level' => 'error',
-        ],
-
-        'stderr' => [
-            'driver' => 'monolog',
-            'handler' => StreamHandler::class,
-            'with' => [
-                'stream' => 'php://stderr',
-            ],
-        ],
-
-        'syslog' => [
-            'driver' => 'syslog',
-            'level' => 'debug',
-        ],
-
-        'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => 'debug',
         ],
     ],
 

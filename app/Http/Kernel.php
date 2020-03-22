@@ -6,8 +6,6 @@ use App\Http\Middleware\RequestLanguageMiddleware;
 use Bepsvpt\SecureHeaders\SecureHeadersMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode;
-use Illuminate\Http\Middleware\SetCacheHeaders;
-use Illuminate\Routing\Middleware\ValidateSignature;
 
 final class Kernel extends HttpKernel
 {
@@ -19,31 +17,8 @@ final class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        CheckForMaintenanceMode::class,
         SecureHeadersMiddleware::class,
+        CheckForMaintenanceMode::class,
         RequestLanguageMiddleware::class,
-    ];
-
-    /**
-     * The application's route middleware groups.
-     *
-     * @var array
-     */
-    protected $middlewareGroups = [
-        'web' => [
-            //
-        ],
-    ];
-
-    /**
-     * The application's route middleware.
-     *
-     * These middleware may be assigned to groups or used individually.
-     *
-     * @var array
-     */
-    protected $routeMiddleware = [
-        'cache.headers' => SetCacheHeaders::class,
-        'signed' => ValidateSignature::class,
     ];
 }
