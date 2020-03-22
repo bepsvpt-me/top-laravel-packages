@@ -44,13 +44,13 @@ final class HomeController extends Controller
      */
     public function ranking(string $type, string $date): View
     {
-        $dateTime = DateTime::createFromFormat($this->format($type), $date);
+        abort_if(empty($format = $this->format($type)), 404);
+
+        $dateTime = DateTime::createFromFormat($format, $date);
 
         abort_if($dateTime === false, 404);
 
         $date = $dateTime->format('Y-m-d');
-
-        abort_if($date === false, 404);
 
         abort_if($dateTime > new DateTime, 404);
 
@@ -89,7 +89,7 @@ final class HomeController extends Controller
             case 'yearly':
                 return '!Y';
             default:
-                return abort(404);
+                return '';
         }
     }
 

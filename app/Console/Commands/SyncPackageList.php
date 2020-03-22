@@ -53,7 +53,7 @@ final class SyncPackageList extends Command
      *
      * @param string $url
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function fetch(string $url): array
     {
@@ -76,7 +76,7 @@ final class SyncPackageList extends Command
     /**
      * Save packages information to database.
      *
-     * @param array $packages
+     * @param array<array<string|int>> $packages
      *
      * @return void
      */

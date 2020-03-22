@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Package;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -55,7 +56,7 @@ final class SyncPackageDownloads extends Command
      *
      * @param Collection $packages
      *
-     * @return array
+     * @return array<PromiseInterface>
      */
     protected function urls(Collection $packages): array
     {
@@ -81,9 +82,9 @@ final class SyncPackageDownloads extends Command
      * Parse promise response and get data.
      *
      * @param int   $key
-     * @param array $haystack
+     * @param array<mixed> $haystack
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function retrieve(int $key, array $haystack): array
     {

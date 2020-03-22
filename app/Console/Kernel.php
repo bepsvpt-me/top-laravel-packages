@@ -10,7 +10,7 @@ final class Kernel extends ConsoleKernel
     /**
      * The Artisan commands provided by your application.
      *
-     * @var array
+     * @var array<string>
      */
     protected $commands = [
         //

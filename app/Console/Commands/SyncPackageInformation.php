@@ -6,6 +6,7 @@ use App\Package;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -87,7 +88,7 @@ final class SyncPackageInformation extends Command
      *
      * @param Collection $packages
      *
-     * @return array
+     * @return array<PromiseInterface>
      */
     protected function urls(Collection $packages): array
     {
@@ -102,9 +103,9 @@ final class SyncPackageInformation extends Command
      * Parse promise response and get data.
      *
      * @param int   $key
-     * @param array $haystack
+     * @param array<mixed> $haystack
      *
-     * @return array
+     * @return array<mixed>
      */
     protected function retrieve(int $key, array $haystack): array
     {
@@ -126,7 +127,7 @@ final class SyncPackageInformation extends Command
     /**
      * Get package latest version except dev.
      *
-     * @param array $versions
+     * @param array<string> $versions
      *
      * @return null|string
      */
@@ -179,7 +180,7 @@ final class SyncPackageInformation extends Command
     /**
      * Get minimum satisfied version.
      *
-     * @param array       $versions
+     * @param array<string> $versions
      * @param string|null $constraint
      *
      * @return null|string
