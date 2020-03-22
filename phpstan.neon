@@ -1,0 +1,20 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    level: max
+
+    paths:
+        - %currentWorkingDirectory%/app
+#        - %currentWorkingDirectory%/tests
+
+    ignoreErrors:
+        -
+            message: "#Method App\\\\Console\\\\Commands\\\\SyncPackageDownloads\\:\\:retrieve\\(\\) should return array but returns array\\|false\\.#"
+            count: 1
+            path: app/Console/Commands/SyncPackageDownloads.php
+
+        -
+            message: "#Cannot access property \\$name on App\\\\Package\\|null\\.#"
+            count: 1
+            path: app/Http/Controllers/HomeController.php
