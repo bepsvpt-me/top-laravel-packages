@@ -19,5 +19,6 @@ return Config::create()
         '@PSR2' => true,
         'psr4' => true,
     ])
+    ->setLineEnding(PHP_EOL)
     ->setRiskyAllowed(true)
     ->setUsingCache(false);
