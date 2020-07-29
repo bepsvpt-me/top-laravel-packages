@@ -34,39 +34,35 @@
 
 @section('main')
   <table class="table table-striped table-bordered">
-    <thead class="thead-light">
+    <thead class="thead-light text-center">
       <tr>
-        <th class="sticky-top text-center" rowspan="2">#</th>
+        <th rowspan="2">#</th>
 
-        <th class="sticky-top text-center" rowspan="2">
+        <th rowspan="2">
           {{ __('base.downloads') }}
         </th>
 
-        <th class="sticky-top text-center" rowspan="2">
+        <th rowspan="2">
           {{ __('base.favorites') }}
         </th>
 
-        <th class="sticky-top" rowspan="2">
+        <th class="text-left" rowspan="2">
           {{ __('base.name') }}
         </th>
 
-        <th class="sticky-top" rowspan="2">
+        <th class="text-left" rowspan="2">
           {{ __('base.description') }}
         </th>
 
-        <th class="sticky-top pb-0 text-center" colspan="2">
+        <th colspan="2">
           {{ __('base.minimum_requirement') }}
         </th>
       </tr>
 
       <tr>
-        <th class="sticky-top pt-0 text-center home-sticky-top-fixer">
-          PHP
-        </th>
+        <th>PHP</th>
 
-        <th class="sticky-top pt-0 text-center home-sticky-top-fixer">
-          Laravel
-        </th>
+        <th>Laravel</th>
       </tr>
     </thead>
 

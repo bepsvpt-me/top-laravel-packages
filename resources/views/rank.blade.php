@@ -34,16 +34,19 @@
 
 @section('main')
   <table class="table table-striped table-bordered">
-    <thead class="thead-light">
+    <thead class="thead-light text-center">
       <tr>
-        <th class="sticky-top text-center">#</th>
-        <th class="sticky-top text-center">
+        <th>#</th>
+
+        <th>
           {{ __('base.downloads') }}
         </th>
-        <th class="sticky-top">
+
+        <th class="text-left">
           {{ __('base.name') }}
         </th>
-        <th class="sticky-top">
+
+        <th class="text-left">
           {{ __('base.description') }}
         </th>
       </tr>

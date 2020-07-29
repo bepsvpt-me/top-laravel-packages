@@ -1,1 +1,1 @@
-<span class="text-black-50 mx-1 no-select">•</span>
+<span class="text-black-50 mx-1 user-select-none">•</span>

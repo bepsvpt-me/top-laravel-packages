@@ -9,7 +9,9 @@ body {
 }
 
 main {
-  min-height: 25rem;
+  section.wrapper {
+    overflow-x: auto;
+  }
 }
 
 table {
@@ -22,14 +24,6 @@ table {
   td {
     vertical-align: middle !important;
   }
-}
-
-.no-select {
-  user-select: none;
-}
-
-.home-sticky-top-fixer {
-  top: 2.35rem;
 }
 
 .name {

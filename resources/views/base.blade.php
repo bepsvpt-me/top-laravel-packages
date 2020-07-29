@@ -20,8 +20,10 @@
       </div>
     </header>
 
-    <main class="flex-grow-1 mx-3 overflow-auto">
-      @yield('main')
+    <main class="flex-grow-1 mx-3">
+      <section class="wrapper">
+        @yield('main')
+      </section>
     </main>
 
     <footer class="footer py-3">
