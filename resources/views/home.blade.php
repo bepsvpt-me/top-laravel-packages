@@ -14,7 +14,7 @@
 
     @include('components.dot')
 
-    <a href="{{ route('ranking', ['type' => 'weekly', 'date' => $date->startOfWeek()->toDateString()]) }}">
+    <a href="{{ route('ranking', ['type' => 'weekly', 'date' => $date->copy()->startOfWeek()->toDateString()]) }}">
       {{ __('base.weekly') }}
     </a>
 
