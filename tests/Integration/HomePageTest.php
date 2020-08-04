@@ -45,7 +45,7 @@ class HomePageTest extends TestCase
     {
         $month = route('ranking', [
             'type' => 'monthly',
-            'date' => now()->format('Y-m'),
+            'date' => now()->subDays(2)->format('Y-m'),
         ]);
 
         $year = route('ranking', [
