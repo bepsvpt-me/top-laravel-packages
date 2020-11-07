@@ -14,12 +14,12 @@ class PackageModelTest extends TestCase
 
         /** @var Package $package */
 
-        $package = factory(Package::class)->create();
+        $package = Package::factory()->create();
 
         $this->assertSame('', $package->syncedAt());
 
         $download = $package->downloads()->save(
-            factory(Download::class)->make()
+            Download::factory()->make()
         );
 
         $this->assertInstanceOf(Download::class, $download);

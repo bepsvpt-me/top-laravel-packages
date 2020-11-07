@@ -1,16 +1,31 @@
 <?php
 
+namespace Database\Factories;
+
 use App\Download;
-use Faker\Generator as Faker;
-use Illuminate\Database\Eloquent\Factory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-/** @var Factory $factory */
+final class DownloadFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Download::class;
 
-$factory->define(Download::class, function (Faker $faker) {
-    return [
-        'package_id' => $faker->randomNumber(),
-        'date' => $faker->date(),
-        'downloads' => $faker->randomNumber(),
-        'type' => 'daily',
-    ];
-});
+    /**
+     * Define the model's default state.
+     *
+     * @return array<int|string>
+     */
+    public function definition(): array
+    {
+        return [
+            'package_id' => $this->faker->randomNumber(),
+            'date' => $this->faker->date(),
+            'downloads' => $this->faker->randomNumber(),
+            'type' => 'daily',
+        ];
+    }
+}

@@ -14,7 +14,7 @@ class CalculateDownloadsTest extends TestCase
     {
         /** @var Package $package */
 
-        $package = factory(Package::class)->create();
+        $package = Package::factory()->create();
 
         $count = 50;
 
@@ -24,7 +24,7 @@ class CalculateDownloadsTest extends TestCase
             $days[$count] = now()->addDays($count)->startOfDay();
 
             $package->downloads()->save(
-                factory(Download::class)->make([
+                Download::factory()->make([
                     'date' => $days[$count]
                 ])
             );

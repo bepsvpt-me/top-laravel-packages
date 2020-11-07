@@ -10,7 +10,8 @@ class CalculateWeightsTest extends TestCase
 {
     public function testCalculateWeightsCommand(): void
     {
-        $packages = factory(Package::class, 20)
+        $packages = Package::factory()
+            ->count(20)
             ->create([
                 'weights' => 999,
             ]);
@@ -19,7 +20,7 @@ class CalculateWeightsTest extends TestCase
 
         foreach ($packages as $package) {
             $package->downloads()->saveMany(
-                factory(Download::class, 3)->make()
+                Download::factory()->count(3)->make()
             );
         }
 

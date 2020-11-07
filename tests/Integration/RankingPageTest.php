@@ -78,16 +78,16 @@ class RankingPageTest extends TestCase
     {
         $name = 'hi/apple';
 
-        $package = factory(Package::class)->create([
+        $package = Package::factory()->create([
             'name' => $name,
         ]);
 
-        $download1 = factory(Download::class)->create([
+        $download1 = Download::factory()->create([
             'package_id' => $package->getKey(),
             'date' => '2020-01-01',
         ]);
 
-        $download2 = factory(Download::class)->create([
+        $download2 = Download::factory()->create([
             'package_id' => $package->getKey(),
             'date' => '2020-01-02',
         ]);

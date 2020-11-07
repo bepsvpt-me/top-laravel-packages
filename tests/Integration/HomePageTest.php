@@ -15,9 +15,9 @@ class HomePageTest extends TestCase
 
     public function testSomeRecord(): void
     {
-        $package1 = factory(Package::class)->create();
+        $package1 = Package::factory()->create();
 
-        $package2 = factory(Package::class)->create();
+        $package2 = Package::factory()->create();
 
         $this->get('/')
             ->assertSeeText($package1->name)
@@ -28,11 +28,11 @@ class HomePageTest extends TestCase
 
     public function testHideOfficialPackages(): void
     {
-        $package1 = factory(Package::class)->create([
+        $package1 = Package::factory()->create([
             'name' => 'fruitcake/laravel-cors',
         ]);
 
-        $package2 = factory(Package::class)->create();
+        $package2 = Package::factory()->create();
 
         $this->get('/')
             ->assertDontSeeText($package1->name)
