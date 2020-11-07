@@ -28,7 +28,7 @@
     "predis/predis": "~1.1"
   },
   "require-dev": {
-    "facade/ignition": "~2.0",
+    "facade/ignition": "~2.3",
     "fakerphp/faker": "~1.10",
     "friendsofphp/php-cs-fixer": "~2.16",
     "mockery/mockery": "~1.3",
