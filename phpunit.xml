@@ -3,7 +3,6 @@
   backupGlobals="false"
   backupStaticAttributes="false"
   bootstrap="vendor/autoload.php"
-  cacheResult="false"
   colors="true"
   convertErrorsToExceptions="true"
   convertNoticesToExceptions="true"
@@ -13,24 +12,22 @@
   stopOnError="true"
   stopOnFailure="true"
 >
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./app</directory>
+    </include>
+  </coverage>
   <testsuites>
     <testsuite name="Command">
       <directory suffix="Test.php">./tests/Command</directory>
     </testsuite>
-
     <testsuite name="Integration">
       <directory suffix="Test.php">./tests/Integration</directory>
     </testsuite>
-
     <testsuite name="Unit">
       <directory suffix="Test.php">./tests/Unit</directory>
     </testsuite>
   </testsuites>
-  <filter>
-    <whitelist processUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">./app</directory>
-    </whitelist>
-  </filter>
   <php>
     <server name="APP_ENV" value="testing"/>
     <server name="BCRYPT_ROUNDS" value="4"/>
