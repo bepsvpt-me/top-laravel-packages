@@ -6,7 +6,7 @@ use App\Download;
 use App\Package;
 use Tests\TestCase;
 
-class RankingPageTest extends TestCase
+final class RankingPageTest extends TestCase
 {
     public function testInvalidRoute(): void
     {

@@ -5,7 +5,7 @@ namespace Tests\Integration;
 use App\Package;
 use Tests\TestCase;
 
-class HomePageTest extends TestCase
+final class HomePageTest extends TestCase
 {
     public function testEmptyRecord(): void
     {

@@ -6,7 +6,7 @@ use App\Download;
 use App\Package;
 use Tests\TestCase;
 
-class CalculateWeightsTest extends TestCase
+final class CalculateWeightsTest extends TestCase
 {
     public function testCalculateWeightsCommand(): void
     {

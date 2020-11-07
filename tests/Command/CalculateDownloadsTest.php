@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Tests\TestCase;
 
-class CalculateDownloadsTest extends TestCase
+final class CalculateDownloadsTest extends TestCase
 {
     public function testCalculateDownloadsCommand(): void
     {

@@ -6,7 +6,7 @@ use App\Download;
 use App\Package;
 use Tests\TestCase;
 
-class PackageModelTest extends TestCase
+final class PackageModelTest extends TestCase
 {
     public function testSyncedAt(): void
     {
