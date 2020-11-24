@@ -20,5 +20,4 @@ return Config::create()
         'psr4' => true,
     ])
     ->setLineEnding(PHP_EOL)
-    ->setRiskyAllowed(true)
-    ->setUsingCache(false);
+    ->setRiskyAllowed(true);
