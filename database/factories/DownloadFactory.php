@@ -23,7 +23,7 @@ final class DownloadFactory extends Factory
     {
         return [
             'package_id' => $this->faker->randomNumber(),
-            'date' => $this->faker->date(),
+            'date' => $this->faker->unique()->date(),
             'downloads' => $this->faker->randomNumber(),
             'type' => 'daily',
         ];
