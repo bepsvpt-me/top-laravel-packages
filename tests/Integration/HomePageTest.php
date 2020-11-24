@@ -15,7 +15,11 @@ final class HomePageTest extends TestCase
 
     public function testSomeRecord(): void
     {
+        /** @var Package $package1 */
+
         $package1 = Package::factory()->create();
+
+        /** @var Package $package2 */
 
         $package2 = Package::factory()->create();
 
@@ -28,9 +32,13 @@ final class HomePageTest extends TestCase
 
     public function testHideOfficialPackages(): void
     {
+        /** @var Package $package1 */
+
         $package1 = Package::factory()->create([
             'name' => 'fruitcake/laravel-cors',
         ]);
+
+        /** @var Package $package2 */
 
         $package2 = Package::factory()->create();
 

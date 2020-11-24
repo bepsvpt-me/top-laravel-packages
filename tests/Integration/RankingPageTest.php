@@ -82,10 +82,14 @@ final class RankingPageTest extends TestCase
             'name' => $name,
         ]);
 
+        /** @var Download $download1 */
+
         $download1 = Download::factory()->create([
             'package_id' => $package->getKey(),
             'date' => '2020-01-01',
         ]);
+
+        /** @var Download $download2 */
 
         $download2 = Download::factory()->create([
             'package_id' => $package->getKey(),
