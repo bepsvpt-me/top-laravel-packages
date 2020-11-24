@@ -1,4 +1,5 @@
 /build
+/coverage
 /node_modules
 /public/hot
 /public/storage
@@ -7,10 +8,13 @@
 /.idea
 /.vscode
 /.vagrant
+clover.xml
 Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
 .env
 .php_cs.cache
+.phpstorm.meta.php
 .phpunit.result.cache
+_ide_helper.php
