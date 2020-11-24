@@ -20,9 +20,8 @@ final class HomeController extends Controller
      */
     public function index(): View
     {
-        $packages = Cache::remember('package-list', 60 * 60, function () {
-            $packages = Package::query()
-                ->orderByDesc('downloads')
+        $packages = Cache::remember('overview', 60 * 60, function () {
+            $packages = Package::orderByDesc('downloads')
                 ->orderByDesc('favers')
                 ->get();
 
