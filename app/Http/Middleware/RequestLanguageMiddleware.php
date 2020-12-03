@@ -15,7 +15,7 @@ final class RequestLanguageMiddleware
      *
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         $available = ['en', 'zh_TW'];
 
