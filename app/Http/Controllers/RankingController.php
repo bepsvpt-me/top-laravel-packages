@@ -3,75 +3,71 @@
 namespace App\Http\Controllers;
 
 use App\Download;
-use App\Package;
-use DateTime;
 use Exception;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class HomeController extends Controller
+final class RankingController extends Controller
 {
     /**
-     * Package list.
-     *
-     * @return View
-     */
-    public function index(): View
-    {
-        $packages = Cache::remember('overview', 60 * 60, function () {
-            $packages = Package::orderByDesc('downloads')
-                ->orderByDesc('favers')
-                ->get();
-
-            return $this->filterOfficialPackages($packages);
-        });
-
-        return view('home', compact('packages'));
-    }
-
-    /**
-     * Package downloads ranking.
+     * Handle the incoming request.
      *
      * @param string $type
      * @param string $date
      *
      * @return View
-     *
-     * @throws Exception
      */
-    public function ranking(string $type, string $date): View
+    public function __invoke(string $type, string $date): View
     {
-        abort_if(empty($format = $this->format($type)), 404);
+        if (!$this->check($type, $date)) {
+            throw new NotFoundHttpException;
+        }
 
-        $dateTime = DateTime::createFromFormat($format, $date);
+        $key = sprintf('ranking-%s-%s', $type, $date);
 
-        abort_if($dateTime === false, 404);
-
-        $date = $dateTime->format('Y-m-d');
-
-        abort_if($dateTime > new DateTime, 404);
-
-        abort_if(new DateTime('2012-05-31') > $dateTime, 404);
-
-        $key = sprintf('package-ranking-%s-%s', $type, $date);
-
-        $ranks = Cache::remember($key, 60 * 60, function () use ($type, $date) {
-            $ranks = Download::with('package:packages.id,name,url,description')
-                ->where('type', $type)
-                ->where('date', $date)
-                ->orderByDesc('downloads')
-                ->get();
-
-            return $this->filterOfficialPackages($ranks);
+        $ranks = Cache::remember($key, $this->ttl, function () use ($type, $date) {
+            return $this->exclude(
+                Download::with('package:packages.id,name,url,description')
+                    ->where('type', $type)
+                    ->where('date', $date)
+                    ->orderByDesc('downloads')
+                    ->get()
+            );
         });
 
-        return view('rank', compact('ranks'));
+        return view('rank')->with('ranks', $ranks);
     }
 
     /**
-     * Get type format.
+     * Check type and date is valid or not.
+     *
+     * @param string $type
+     * @param string $date
+     *
+     * @return bool
+     */
+    protected function check(string $type, string $date): bool
+    {
+        try {
+            $target = Carbon::createFromFormat(
+                $this->format($type),
+                $date
+            );
+        } catch (Exception $e) {
+            return false;
+        }
+
+        $from = '2012-05-31';
+
+        $to = now()->startOfDay();
+
+        return $target && $target->isBetween($from, $to);
+    }
+
+    /**
+     * Get format by type.
      *
      * @param string $type
      *
@@ -90,37 +86,5 @@ final class HomeController extends Controller
             default:
                 return '';
         }
-    }
-
-    /**
-     * Filter official packages.
-     *
-     * @param Collection $collection
-     *
-     * @return Collection
-     */
-    protected function filterOfficialPackages(Collection $collection): Collection
-    {
-        $officialIncludes = [
-            'facade/ignition',
-            'fruitcake/laravel-cors',
-            'nunomaduro/collision',
-        ];
-
-        return $collection->filter(function ($model) use ($officialIncludes) {
-            if ($model instanceof Package) {
-                $name = $model->name;
-            } elseif ($model instanceof Download) {
-                $name = $model->package->name;
-            } else {
-                return true;
-            }
-
-            if (in_array($name, $officialIncludes, true)) {
-                return false;
-            }
-
-            return !Str::contains($name, ['laravel/', 'illuminate/']);
-        });
     }
 }
