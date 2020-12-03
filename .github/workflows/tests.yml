@@ -33,7 +33,7 @@ jobs:
         run: composer require nunomaduro/larastan --dev --no-progress --no-interaction
 
       - name: Run PHPStan
-        run: phpstan analyse --memory-limit=-1 -vvv
+        run: vendor/bin/phpstan analyse --memory-limit=-1 -vvv
 
       - name: Run PHP-CS-Fixer
         run: php-cs-fixer fix --dry-run -vvv
