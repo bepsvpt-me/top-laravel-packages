@@ -1,5 +1,5 @@
 includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
+    - vendor/nunomaduro/larastan/extension.neon
 
 parameters:
     level: max
@@ -21,6 +21,11 @@ parameters:
             message: "#Cannot call method assertExitCode\\(\\) on Illuminate\\\\Testing\\\\PendingCommand\\|int\\.#"
             count: 1
             path: tests/Command/CalculateWeightsTest.php
+
+        -
+            message: "#Parameter \\#1 \\$value of method Illuminate\\\\Testing\\\\TestResponse\\:\\:assert(?:Dont)?SeeText\\(\\) expects array\\|string, string\\|null given\\.#"
+            count: 4
+            path: tests/Integration/HomePageTest.php
 
         -
             message: "#Cannot access property \\$date on App\\\\Download\\|false\\.#"
