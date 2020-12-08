@@ -30,7 +30,7 @@ jobs:
           extensions: dom, fileinfo, mbstring, pdo_mysql, pdo_sqlite, sqlite3, xdebug
 
       - name: Add nunomaduro/larastan to dev dependencies
-        run: composer require nunomaduro/larastan --dev --no-progress --no-interaction
+        run: composer require nunomaduro/larastan phpunit/phpunit --dev --no-progress --no-interaction
 
       - name: Run PHPStan
         run: phpstan analyse --memory-limit=-1 -vvv
