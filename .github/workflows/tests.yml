@@ -17,7 +17,7 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        php: ['7.3', '7.4', '8.0']
+        php: ['7.3', '7.4']
 
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
         run: phpstan analyse --memory-limit=-1 -vvv
 
       - name: Run PHP-CS-Fixer
-        run: PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run -vvv
+        run: php-cs-fixer fix --dry-run -vvv
 
       - name: Run PHPUnit
         run: phpunit -d memory_limit=-1 -vvv
