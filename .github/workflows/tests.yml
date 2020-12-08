@@ -29,14 +29,14 @@ jobs:
           tools: composer:v2, phpunit:9.4.4, php-cs-fixer, phpstan
           extensions: dom, fileinfo, mbstring, pdo_mysql, pdo_sqlite, sqlite3, xdebug
 
-      - name: Add nunomaduro/larastan to dev dependencies
+      - name: Add nunomaduro/larastan and phpunit/phpunit to dev dependencies
         run: composer require nunomaduro/larastan phpunit/phpunit --dev --no-progress --no-interaction
 
       - name: Run PHPStan
         run: phpstan analyse --memory-limit=-1 -vvv
 
       - name: Run PHP-CS-Fixer
-        run: php-cs-fixer fix --dry-run -vvv
+        run: PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run -vvv
 
       - name: Run PHPUnit
         run: phpunit -d memory_limit=-1 -vvv
