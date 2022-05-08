@@ -52,11 +52,13 @@ jobs:
         run: composer normalize --dry-run
 
       - name: Run static analysis
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.php == '8.1' }}
         run: vendor/bin/phpstan --memory-limit=-1 -vvv
         env:
           APP_KEY: base64:bQcanzu8UWGactsYM3MVfsMpCVBUQFSKGlhCjYtbAi8=
 
       - name: Run coding style checker
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.php == '8.1' }}
         run: vendor/bin/php-cs-fixer fix --dry-run --diff -vvv
 
       - name: Run tests
