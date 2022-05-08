@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "db0942059a870766fbd798a34300e504",
+    "content-hash": "8fe08f476f2951fbb5ab58248923fd76",
     "packages": [
         {
             "name": "bepsvpt/secure-headers",
@@ -10180,7 +10180,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.3 || ^8.0",
+        "php": "^8.0",
         "ext-json": "*",
         "ext-pdo": "*"
     },
