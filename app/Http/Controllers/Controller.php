@@ -9,6 +9,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
+/**
+ * @template TModel of Package|Download
+ */
 abstract class Controller extends BaseController
 {
     /**
@@ -21,15 +24,15 @@ abstract class Controller extends BaseController
      */
     public function __construct()
     {
-        $this->ttl = now()->addHours(1);
+        $this->ttl = now()->addHours();
     }
 
     /**
      * Exclude official included packages.
      *
-     * @param Collection $collection
+     * @param Collection<int, TModel> $collection
      *
-     * @return Collection
+     * @return Collection<int, TModel>
      */
     protected function exclude(Collection $collection): Collection
     {
@@ -44,6 +47,10 @@ abstract class Controller extends BaseController
             if ($model instanceof Package) {
                 $name = $model->name;
             } elseif ($model instanceof Download) {
+                if ($model->package === null) {
+                    return false;
+                }
+
                 $name = $model->package->name;
             } else {
                 return true;

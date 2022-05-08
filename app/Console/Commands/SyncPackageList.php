@@ -4,10 +4,25 @@ namespace App\Console\Commands;
 
 use App\Package;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Arr;
 
-final class SyncPackageList extends Command
+/**
+ * @template TPackage of array {
+ *     total: int,
+ *     next?: string,
+ *     results: array{
+ *         name: string,
+ *         description: string,
+ *         url: string,
+ *         repository: string,
+ *         downloads: int,
+ *         favers: int
+ *     }
+ * }
+ */
+class SyncPackageList extends Command
 {
     /**
      * The name and signature of the console command.
@@ -27,6 +42,8 @@ final class SyncPackageList extends Command
      * Execute the console command.
      *
      * @return void
+     *
+     * @throws GuzzleException
      */
     public function handle(): void
     {
@@ -54,9 +71,11 @@ final class SyncPackageList extends Command
     /**
      * Fetch remote data.
      *
-     * @param string $url
+     * @param  string  $url
      *
-     * @return array<mixed>|null
+     * @return TPackage|null
+     *
+     * @throws GuzzleException
      */
     protected function fetch(string $url): ?array
     {
@@ -65,7 +84,11 @@ final class SyncPackageList extends Command
 
             $content = $response->getBody()->getContents();
 
-            return json_decode($content, true);
+            /** @var TPackage $data */
+
+            $data = json_decode($content, true);
+
+            return $data;
         } catch (TransferException $e) {
             $this->fatal($e->getMessage(), ['url' => $url]);
         } catch (Exception $e) {
@@ -78,7 +101,7 @@ final class SyncPackageList extends Command
     /**
      * Save packages information to database.
      *
-     * @param array<array<string|int>> $packages
+     * @param TPackage $packages
      *
      * @return void
      */
@@ -87,7 +110,7 @@ final class SyncPackageList extends Command
         $fields = ['description', 'url', 'repository', 'downloads', 'favers'];
 
         foreach ($packages as $package) {
-            $model = Package::query()->updateOrCreate(
+            $model = Package::updateOrCreate(
                 ['name' => $package['name']],
                 Arr::only($package, $fields)
             );

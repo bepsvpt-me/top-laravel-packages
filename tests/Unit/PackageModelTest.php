@@ -6,21 +6,23 @@ use App\Download;
 use App\Package;
 use Tests\TestCase;
 
-final class PackageModelTest extends TestCase
+class PackageModelTest extends TestCase
 {
     public function testSyncedAt(): void
     {
-        $this->assertSame('', (new Package)->syncedAt());
-
-        /** @var Package $package */
+        $this->assertSame('', (new Package())->syncedAt());
 
         $package = Package::factory()->create();
 
+        $this->assertInstanceOf(Package::class, $package);
+
         $this->assertSame('', $package->syncedAt());
 
-        $download = $package->downloads()->save(
-            Download::factory()->make()
-        );
+        $model = Download::factory()->make();
+
+        $this->assertInstanceOf(Download::class, $model);
+
+        $download = $package->downloads()->save($model);
 
         $this->assertInstanceOf(Download::class, $download);
 

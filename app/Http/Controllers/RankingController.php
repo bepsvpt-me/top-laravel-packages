@@ -9,7 +9,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class RankingController extends Controller
+/**
+ * @extends Controller<Download>
+ */
+class RankingController extends Controller
 {
     /**
      * Handle the incoming request.
@@ -22,7 +25,7 @@ final class RankingController extends Controller
     public function __invoke(string $type, string $date): View
     {
         if (!$this->check($type, $date)) {
-            throw new NotFoundHttpException;
+            throw new NotFoundHttpException();
         }
 
         $key = sprintf('ranking-%s-%s', $type, $date);
@@ -56,6 +59,12 @@ final class RankingController extends Controller
                 $date
             );
         } catch (Exception $e) {
+            return false;
+        }
+
+        $errors = Carbon::getLastErrors();
+
+        if ($errors['warning_count'] || $errors['error_count']) {
             return false;
         }
 

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
-  backupGlobals="false"
-  backupStaticAttributes="false"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
   bootstrap="vendor/autoload.php"
   colors="true"
-  convertErrorsToExceptions="true"
-  convertNoticesToExceptions="true"
-  convertWarningsToExceptions="true"
   executionOrder="random"
   stopOnError="true"
   stopOnFailure="true"
@@ -14,24 +11,23 @@
 >
   <testsuites>
     <testsuite name="Command">
-      <directory suffix="Test.php">./tests/Command</directory>
+      <directory>./tests/Command</directory>
     </testsuite>
     <testsuite name="Integration">
-      <directory suffix="Test.php">./tests/Integration</directory>
+      <directory>./tests/Integration</directory>
     </testsuite>
     <testsuite name="Unit">
-      <directory suffix="Test.php">./tests/Unit</directory>
+      <directory>./tests/Unit</directory>
     </testsuite>
   </testsuites>
   <php>
+    <ini name="memory_limit" value="-1"/>
     <server name="APP_ENV" value="testing"/>
+    <server name="APP_KEY" value="base64:bQcanzu8UWGactsYM3MVfsMpCVBUQFSKGlhCjYtbAi8="/>
     <server name="BCRYPT_ROUNDS" value="4"/>
-    <server name="CACHE_DRIVER" value="none"/>
+    <server name="CACHE_DRIVER" value="array"/>
     <server name="DB_CONNECTION" value="sqlite"/>
     <server name="DB_DATABASE" value=":memory:"/>
-    <server name="MAIL_MAILER" value="array"/>
-    <server name="QUEUE_CONNECTION" value="sync"/>
-    <server name="SESSION_DRIVER" value="array"/>
   </php>
   <coverage processUncoveredFiles="true">
     <include>

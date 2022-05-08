@@ -5,7 +5,7 @@ namespace Tests\Integration;
 use App\Package;
 use Tests\TestCase;
 
-final class HomePageTest extends TestCase
+class HomePageTest extends TestCase
 {
     public function testEmptyRecord(): void
     {
@@ -15,13 +15,17 @@ final class HomePageTest extends TestCase
 
     public function testSomeRecord(): void
     {
-        /** @var Package $package1 */
-
         $package1 = Package::factory()->create();
 
-        /** @var Package $package2 */
+        $this->assertInstanceOf(Package::class, $package1);
+
+        $this->assertIsString($package1->description);
 
         $package2 = Package::factory()->create();
+
+        $this->assertInstanceOf(Package::class, $package2);
+
+        $this->assertIsString($package2->description);
 
         $this->get('/')
             ->assertSeeText($package1->name)
@@ -32,15 +36,19 @@ final class HomePageTest extends TestCase
 
     public function testHideOfficialPackages(): void
     {
-        /** @var Package $package1 */
-
         $package1 = Package::factory()->create([
             'name' => 'fruitcake/laravel-cors',
         ]);
 
-        /** @var Package $package2 */
+        $this->assertInstanceOf(Package::class, $package1);
+
+        $this->assertIsString($package1->description);
 
         $package2 = Package::factory()->create();
+
+        $this->assertInstanceOf(Package::class, $package2);
+
+        $this->assertIsString($package2->description);
 
         $this->get('/')
             ->assertDontSeeText($package1->name)

@@ -1,0 +1,62 @@
+name: Testing
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  testing:
+    name: PHP ${{ matrix.php }}, OS ${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        php: ['7.3', '7.4', '8.0', '8.1']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP, Tools and Extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
+
+      - name: Install dependencies
+        run: composer update --no-interaction --no-progress
+
+      - name: Check runtime dependencies
+        run: composer check-platform-reqs
+
+      - name: Run Composer Validate
+        run: composer validate
+
+      - name: Run Composer Normalize
+        run: composer normalize --dry-run
+
+      - name: Run static analysis
+        run: vendor/bin/phpstan --memory-limit=-1 -vvv
+        env:
+          APP_KEY: base64:bQcanzu8UWGactsYM3MVfsMpCVBUQFSKGlhCjYtbAi8=
+
+      - name: Run coding style checker
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff -vvv
+
+      - name: Run tests
+        run: php artisan test --verbose

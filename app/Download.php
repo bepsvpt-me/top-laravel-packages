@@ -2,41 +2,23 @@
 
 namespace App;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Download
- *
- * @property int $id
- * @property int $package_id
- * @property string $date
- * @property int $downloads
- * @property string $type
- * @property-read Package $package
- * @method static Builder|Download newModelQuery()
- * @method static Builder|Download newQuery()
- * @method static Builder|Download query()
- * @method static Builder|Download whereDate($value)
- * @method static Builder|Download whereDownloads($value)
- * @method static Builder|Download whereId($value)
- * @method static Builder|Download wherePackageId($value)
- * @method static Builder|Download whereType($value)
- * @mixin Eloquent
+ * @mixin IdeHelperDownload
  */
-final class Download extends Model
+class Download extends Model
 {
     use HasFactory;
 
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array<string>
+     * @var bool
      */
-    protected $guarded = [];
+    protected $guarded = false;
 
     /**
      * Indicates if the model should be timestamped.
@@ -48,7 +30,7 @@ final class Download extends Model
     /**
      * Get the package that owns the download.
      *
-     * @return BelongsTo
+     * @return BelongsTo<Package, Download>
      */
     public function package(): BelongsTo
     {

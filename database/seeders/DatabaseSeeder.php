@@ -7,25 +7,29 @@ use App\Package;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 
-final class DatabaseSeeder extends Seeder
+class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        /** @var Collection|Package[] $packages */
+        /** @var Collection<int, Package> $packages */
 
         $packages = Package::factory()
             ->count(rand(5, 10))
             ->create();
 
         foreach ($packages as $package) {
-            $package->downloads()->saveMany(
-                Download::factory()->count(rand(5, 15))->make()
-            );
+            /** @var Collection<int, Download> $downloads */
+
+            $downloads = Download::factory()
+                                 ->count(rand(5, 15))
+                                 ->make();
+
+            $package->downloads()->saveMany($downloads);
         }
     }
 }

@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use App\Download;
 use App\Package;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 
-final class CalculateDownloads extends Command
+class CalculateDownloads extends Command
 {
     /**
      * The name and signature of the console command.
@@ -29,7 +29,7 @@ final class CalculateDownloads extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         foreach (Package::all(['id']) as $package) {
             foreach (['weekly', 'monthly', 'yearly'] as $type) {
@@ -55,7 +55,7 @@ final class CalculateDownloads extends Command
      * @param Package $package
      * @param string $type
      *
-     * @return Collection
+     * @return Collection<int, Download>
      */
     protected function downloads(Package $package, string $type): Collection
     {
@@ -67,7 +67,7 @@ final class CalculateDownloads extends Command
         $downloads = $package->downloads()
             ->where('type', '=', 'daily');
 
-        if (!is_null($download)) {
+        if ($download !== null) {
             $downloads->where('date', '>=', $download->date);
         }
 

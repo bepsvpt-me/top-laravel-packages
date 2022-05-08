@@ -6,7 +6,7 @@ use App\Download;
 use App\Package;
 use Tests\TestCase;
 
-final class RankingPageTest extends TestCase
+class RankingPageTest extends TestCase
 {
     public function testInvalidRoute(): void
     {
@@ -82,19 +82,21 @@ final class RankingPageTest extends TestCase
             'name' => $name,
         ]);
 
-        /** @var Download $download1 */
+        $this->assertInstanceOf(Package::class, $package);
 
         $download1 = Download::factory()->create([
             'package_id' => $package->getKey(),
             'date' => '2020-01-01',
         ]);
 
-        /** @var Download $download2 */
+        $this->assertInstanceOf(Download::class, $download1);
 
         $download2 = Download::factory()->create([
             'package_id' => $package->getKey(),
             'date' => '2020-01-02',
         ]);
+
+        $this->assertInstanceOf(Download::class, $download2);
 
         $route1 = route('ranking', [
             'type' => 'daily',

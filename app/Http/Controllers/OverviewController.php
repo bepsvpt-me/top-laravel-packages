@@ -6,7 +6,10 @@ use App\Package;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 
-final class OverviewController extends Controller
+/**
+ * @extends Controller<Package>
+ */
+class OverviewController extends Controller
 {
     /**
      * Handle the incoming request.

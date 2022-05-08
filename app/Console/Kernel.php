@@ -2,20 +2,16 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CalculateDownloads;
+use App\Console\Commands\CalculateWeights;
+use App\Console\Commands\SyncPackageDownloads;
+use App\Console\Commands\SyncPackageInformation;
+use App\Console\Commands\SyncPackageList;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
-final class Kernel extends ConsoleKernel
+class Kernel extends ConsoleKernel
 {
-    /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array<string>
-     */
-    protected $commands = [
-        //
-    ];
-
     /**
      * Define the application's command schedule.
      *
@@ -23,13 +19,13 @@ final class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('package:sync:list')->dailyAt('02:01');
-        $schedule->command('package:sync:downloads')->dailyAt('03:01');
-        $schedule->command('package:sync:information')->dailyAt('04:01');
-        $schedule->command('package:calc:downloads')->dailyAt('05:01');
-        $schedule->command('package:calc:weights')->dailyAt('05:01');
+        $schedule->command(SyncPackageList::class)->dailyAt('02:01');
+        $schedule->command(SyncPackageDownloads::class)->dailyAt('03:01');
+        $schedule->command(SyncPackageInformation::class)->dailyAt('04:01');
+        $schedule->command(CalculateDownloads::class)->dailyAt('05:01');
+        $schedule->command(CalculateWeights::class)->dailyAt('05:01');
     }
 
     /**
@@ -37,7 +33,7 @@ final class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function commands()
+    protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');
     }

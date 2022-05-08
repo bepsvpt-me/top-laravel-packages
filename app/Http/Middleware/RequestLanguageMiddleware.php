@@ -4,8 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-final class RequestLanguageMiddleware
+class RequestLanguageMiddleware
 {
     /**
      * Handle an incoming request.
@@ -13,9 +14,9 @@ final class RequestLanguageMiddleware
      * @param Request $request
      * @param Closure $next
      *
-     * @return mixed
+     * @return Response
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $available = ['en', 'zh_TW'];
 

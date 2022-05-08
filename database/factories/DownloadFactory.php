@@ -5,19 +5,15 @@ namespace Database\Factories;
 use App\Download;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-final class DownloadFactory extends Factory
+/**
+ * @extends Factory<Download>
+ */
+class DownloadFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = Download::class;
-
     /**
      * Define the model's default state.
      *
-     * @return array<int|string>
+     * @return array<string, int|string>
      */
     public function definition(): array
     {

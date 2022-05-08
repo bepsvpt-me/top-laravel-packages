@@ -2,38 +2,38 @@
 
 namespace Tests\Command;
 
-use App\Download;
+use App\Console\Commands\CalculateWeights;
 use App\Package;
+use Illuminate\Testing\PendingCommand;
 use Tests\TestCase;
 
-final class CalculateWeightsTest extends TestCase
+class CalculateWeightsTest extends TestCase
 {
     public function testCalculateWeightsCommand(): void
     {
-        $packages = Package::factory()
-            ->count(20)
-            ->create([
-                'weights' => 999,
-            ]);
-
-        /** @var Package $package */
-
-        foreach ($packages as $package) {
-            $package->downloads()->saveMany(
-                Download::factory()->count(3)->make()
-            );
-        }
+        Package::factory()
+               ->count(20)
+               ->create([
+                   'weights' => 999,
+               ]);
 
         $this->assertDatabaseHas('packages', [
             'weights' => 999,
         ]);
 
-        $this->artisan('package:calc:weights')
-            ->assertExitCode(0);
+        $command = $this->artisan(CalculateWeights::class);
 
-        foreach (range(1, 15) as $weights) {
+        $this->assertInstanceOf(PendingCommand::class, $command);
+
+        $command->assertSuccessful();
+
+        $command->run();
+
+        $weights = range(1, Package::TOTAL_WEIGHTS);
+
+        foreach ($weights as $weight) {
             $this->assertDatabaseHas('packages', [
-                'weights' => $weights,
+                'weights' => $weight,
             ]);
         }
 

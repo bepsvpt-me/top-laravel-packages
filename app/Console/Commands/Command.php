@@ -31,7 +31,7 @@ abstract class Command extends BaseCommand
      * Fatal error.
      *
      * @param string $msg
-     * @param array<mixed> $payload
+     * @param array<int|string, mixed> $payload
      *
      * @return void
      */
