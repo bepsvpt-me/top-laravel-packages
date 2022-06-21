@@ -38,29 +38,31 @@ use Webmozart\Assert\Assert;
  *
  * @template TVersions of array<string, TVersion>
  *
+ * @template TPackage of array {
+ *     name: string,
+ *     description: string,
+ *     time: string,
+ *     maintainers: array<int, array<string, string>>,
+ *     versions: TVersions,
+ *     type: string,
+ *     repository: string,
+ *     github_stars: int,
+ *     github_watchers: int,
+ *     github_forks: int,
+ *     github_open_issues: int,
+ *     language: string,
+ *     dependents: int,
+ *     suggesters: int,
+ *     downloads: array {
+ *         total: int,
+ *         monthly: int,
+ *         daily: int
+ *     },
+ *     favers: int
+ * }
+ *
  * @template TInformation of array {
- *     package: array {
- *         name: string,
- *         description: string,
- *         time: string,
- *         maintainers: array<int, array<string, string>>,
- *         versions: TVersions,
- *         type: string,
- *         repository: string,
- *         github_stars: int,
- *         github_watchers: int,
- *         github_forks: int,
- *         github_open_issues: int,
- *         language: string,
- *         dependents: int,
- *         suggesters: int,
- *         downloads: array {
- *             total: int,
- *             monthly: int,
- *             daily: int
- *         },
- *         favers: int
- *     }
+ *     package: TPackage
  * }
  */
 class SyncPackageInformation extends Command
@@ -156,7 +158,7 @@ class SyncPackageInformation extends Command
      *
      * @param Collection<int, Package> $packages
      *
-     * @return TInformation['package']
+     * @return TPackage
      *
      * @throws Throwable
      */
