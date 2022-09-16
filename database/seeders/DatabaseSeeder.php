@@ -17,14 +17,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         /** @var Collection<int, Package> $packages */
-
         $packages = Package::factory()
             ->count(rand(5, 10))
             ->create();
 
         foreach ($packages as $package) {
             /** @var Collection<int, Download> $downloads */
-
             $downloads = Download::factory()
                                  ->count(rand(5, 15))
                                  ->make();

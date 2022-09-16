@@ -52,9 +52,8 @@ class CalculateDownloads extends Command
     /**
      * Get package downloads.
      *
-     * @param Package $package
-     * @param string $type
-     *
+     * @param  Package  $package
+     * @param  string  $type
      * @return Collection<int, Download>
      */
     protected function downloads(Package $package, string $type): Collection

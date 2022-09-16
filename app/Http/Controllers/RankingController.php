@@ -17,9 +17,8 @@ class RankingController extends Controller
     /**
      * Handle the incoming request.
      *
-     * @param string $type
-     * @param string $date
-     *
+     * @param  string  $type
+     * @param  string  $date
      * @return View
      */
     public function __invoke(string $type, string $date): View
@@ -46,9 +45,8 @@ class RankingController extends Controller
     /**
      * Check type and date is valid or not.
      *
-     * @param string $type
-     * @param string $date
-     *
+     * @param  string  $type
+     * @param  string  $date
      * @return bool
      */
     protected function check(string $type, string $date): bool
@@ -78,8 +76,7 @@ class RankingController extends Controller
     /**
      * Get format by type.
      *
-     * @param string $type
-     *
+     * @param  string  $type
      * @return string
      */
     protected function format(string $type): string

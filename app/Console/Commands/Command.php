@@ -30,9 +30,8 @@ abstract class Command extends BaseCommand
     /**
      * Fatal error.
      *
-     * @param string $msg
-     * @param array<int|string, mixed> $payload
-     *
+     * @param  string  $msg
+     * @param  array<int|string, mixed>  $payload
      * @return void
      */
     protected function fatal(string $msg, array $payload = []): void
@@ -46,9 +45,8 @@ abstract class Command extends BaseCommand
     /**
      * Critical error.
      *
-     * @param string $msg
-     * @param array<mixed> $payload
-     *
+     * @param  string  $msg
+     * @param  array<mixed>  $payload
      * @return void
      */
     protected function critical(string $msg, array $payload = []): void

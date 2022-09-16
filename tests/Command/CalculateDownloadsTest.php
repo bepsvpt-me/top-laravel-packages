@@ -45,7 +45,6 @@ class CalculateDownloadsTest extends TestCase
         /**
          * Sqlite3 only supports date time format.
          */
-
         $day = Arr::first($days);
 
         $this->assertInstanceOf(Carbon::class, $day);

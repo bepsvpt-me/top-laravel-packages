@@ -94,7 +94,6 @@ class SyncPackageInformation extends Command
                ->select(['id', 'name'])
                ->chunk(5, function (Collection $packages) {
                    /** @var Collection<int, Package> $packages */
-
                    try {
                        $responses = $this->responses($packages);
                    } catch (Throwable $e) {
@@ -116,13 +115,13 @@ class SyncPackageInformation extends Command
                        $requires = $info['versions'][$version]['require'] ?? [];
 
                        $package->update([
-                           'dependents'          => $info['dependents'],
-                           'github_stars'        => $info['github_stars'],
-                           'github_watchers'     => $info['github_watchers'],
-                           'github_forks'        => $info['github_forks'],
-                           'github_open_issues'  => $info['github_open_issues'],
-                           'latest_version'      => $version,
-                           'min_php_version'     => $this->minPhpVersion($requires['php'] ?? null),
+                           'dependents' => $info['dependents'],
+                           'github_stars' => $info['github_stars'],
+                           'github_watchers' => $info['github_watchers'],
+                           'github_forks' => $info['github_forks'],
+                           'github_open_issues' => $info['github_open_issues'],
+                           'latest_version' => $version,
+                           'min_php_version' => $this->minPhpVersion($requires['php'] ?? null),
                            'min_laravel_version' => $this->minLaravelVersion($requires['laravel/framework'] ?? ($requires['illuminate/support'] ?? null)),
                        ]);
                    }
@@ -156,8 +155,7 @@ class SyncPackageInformation extends Command
     /**
      * Get package information api urls.
      *
-     * @param Collection<int, Package> $packages
-     *
+     * @param  Collection<int, Package>  $packages
      * @return TPackage
      *
      * @throws Throwable
@@ -176,7 +174,6 @@ class SyncPackageInformation extends Command
             $content = $response->getBody()->getContents();
 
             /** @var TInformation $decoded */
-
             $decoded = json_decode($content, true);
 
             return $decoded['package'];
@@ -186,8 +183,7 @@ class SyncPackageInformation extends Command
     /**
      * Get package latest stable version.
      *
-     * @param TVersions $versions
-     *
+     * @param  TVersions  $versions
      * @return string|null
      */
     protected function latestVersion(array $versions): ?string
@@ -208,8 +204,7 @@ class SyncPackageInformation extends Command
     /**
      * Get package minimum php required version.
      *
-     * @param string|null $constraint
-     *
+     * @param  string|null  $constraint
      * @return string|null
      */
     protected function minPhpVersion(string $constraint = null): ?string
@@ -226,8 +221,7 @@ class SyncPackageInformation extends Command
     /**
      * Get package minimum laravel required version.
      *
-     * @param string|null $constraint
-     *
+     * @param  string|null  $constraint
      * @return string|null
      */
     protected function minLaravelVersion(string $constraint = null): ?string
@@ -244,9 +238,8 @@ class SyncPackageInformation extends Command
     /**
      * Get minimum satisfied version.
      *
-     * @param array<int, string> $versions
-     * @param string|null $constraint
-     *
+     * @param  array<int, string>  $versions
+     * @param  string|null  $constraint
      * @return string|null
      */
     protected function minVersion(array $versions, string $constraint = null): ?string

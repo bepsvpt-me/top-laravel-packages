@@ -43,7 +43,6 @@ class SyncPackageDownloads extends Command
 
         Package::select(['id', 'name'])->chunk(5, function (Collection $packages) {
             /** @var Collection<int, Package> $packages */
-
             try {
                 $responses = $this->responses($packages);
             } catch (Throwable $e) {
@@ -81,8 +80,7 @@ class SyncPackageDownloads extends Command
     /**
      * Get api responses.
      *
-     * @param Collection<int, Package> $packages
-     *
+     * @param  Collection<int, Package>  $packages
      * @return TDownload
      *
      * @throws Throwable
@@ -98,7 +96,6 @@ class SyncPackageDownloads extends Command
 
         return array_map(function (Response $response) {
             /** @var TDownload $data */
-
             $data = json_decode(
                 $response->getBody()->getContents(),
                 true
@@ -111,8 +108,7 @@ class SyncPackageDownloads extends Command
     /**
      * Get package downloads info api url.
      *
-     * @param Package $package
-     *
+     * @param  Package  $package
      * @return string
      */
     protected function url(Package $package): string
@@ -127,9 +123,8 @@ class SyncPackageDownloads extends Command
     /**
      * Save package download info.
      *
-     * @param Package $package
-     * @param array<string, int> $downloads
-     *
+     * @param  Package  $package
+     * @param  array<string, int>  $downloads
      * @return void
      */
     protected function save(Package $package, array $downloads): void

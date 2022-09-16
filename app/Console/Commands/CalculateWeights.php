@@ -37,7 +37,6 @@ class CalculateWeights extends Command
         $weight = 1;
 
         /** @var Collection<int, Package> $packages */
-
         foreach ($chunks as $packages) {
             $ids = $packages->pluck('id')->toArray();
 

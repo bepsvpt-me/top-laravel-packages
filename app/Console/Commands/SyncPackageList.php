@@ -72,7 +72,6 @@ class SyncPackageList extends Command
      * Fetch remote data.
      *
      * @param  string  $url
-     *
      * @return TPackage|null
      *
      * @throws GuzzleException
@@ -85,7 +84,6 @@ class SyncPackageList extends Command
             $content = $response->getBody()->getContents();
 
             /** @var TPackage $data */
-
             $data = json_decode($content, true);
 
             return $data;
@@ -101,8 +99,7 @@ class SyncPackageList extends Command
     /**
      * Save packages information to database.
      *
-     * @param TPackage $packages
-     *
+     * @param  TPackage  $packages
      * @return void
      */
     protected function save(array $packages): void

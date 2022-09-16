@@ -30,8 +30,7 @@ abstract class Controller extends BaseController
     /**
      * Exclude official included packages.
      *
-     * @param Collection<int, TModel> $collection
-     *
+     * @param  Collection<int, TModel>  $collection
      * @return Collection<int, TModel>
      */
     protected function exclude(Collection $collection): Collection
