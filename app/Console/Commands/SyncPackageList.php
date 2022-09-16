@@ -49,6 +49,8 @@ class SyncPackageList extends Command
     {
         $url = '/search.json?tags=laravel&type=library&per_page=100&page=1';
 
+        $ids = [];
+
         while (true) {
             $data = $this->fetch($url);
 
@@ -56,13 +58,17 @@ class SyncPackageList extends Command
                 break;
             }
 
-            $this->save($data['results']);
+            $this->save($data['results'], $ids);
 
             if (!isset($data['next'])) {
                 break;
             }
 
             $url = urldecode($data['next']);
+        }
+
+        if (!empty($ids)) {
+            Package::whereNotIn('id', $ids)->delete();
         }
 
         $this->info('Laravel package list syncs successfully.');
@@ -100,14 +106,16 @@ class SyncPackageList extends Command
      * Save packages information to database.
      *
      * @param  TPackage  $packages
+     * @param  int[]  $ids
      * @return void
      */
-    protected function save(array $packages): void
+    protected function save(array $packages, array &$ids): void
     {
         $fields = ['description', 'url', 'repository', 'downloads', 'favers'];
 
         foreach ($packages as $package) {
-            $model = Package::updateOrCreate(
+            /** @var Package $model */
+            $model = Package::withTrashed()->updateOrCreate(
                 ['name' => $package['name']],
                 Arr::only($package, $fields)
             );
@@ -118,6 +126,12 @@ class SyncPackageList extends Command
                     $packages
                 );
             }
+
+            if ($model->trashed()) {
+                $model->restore();
+            }
+
+            $ids[] = $model->getKey();
         }
     }
 }

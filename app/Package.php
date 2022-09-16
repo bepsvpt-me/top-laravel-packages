@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Webmozart\Assert\Assert;
 
 /**
@@ -13,6 +14,7 @@ use Webmozart\Assert\Assert;
 class Package extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     public const TOTAL_WEIGHTS = 15;
 
