@@ -4,7 +4,8 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 0 * * *'
+    # run tests on every week Monday
+    - cron: '0 0 * * 1'
 
 jobs:
   testing:
@@ -59,7 +60,7 @@ jobs:
 
       - name: Run coding style checker
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.php == '8.1' }}
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff -vvv
+        run: vendor/bin/pint -v --test
 
       - name: Run tests
         run: php artisan test --verbose

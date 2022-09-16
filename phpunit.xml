@@ -5,8 +5,7 @@
   bootstrap="vendor/autoload.php"
   colors="true"
   executionOrder="random"
-  stopOnError="true"
-  stopOnFailure="true"
+  testdox="true"
   verbose="true"
 >
   <testsuites>
@@ -21,13 +20,16 @@
     </testsuite>
   </testsuites>
   <php>
-    <ini name="memory_limit" value="-1"/>
-    <server name="APP_ENV" value="testing"/>
-    <server name="APP_KEY" value="base64:bQcanzu8UWGactsYM3MVfsMpCVBUQFSKGlhCjYtbAi8="/>
-    <server name="BCRYPT_ROUNDS" value="4"/>
-    <server name="CACHE_DRIVER" value="array"/>
-    <server name="DB_CONNECTION" value="sqlite"/>
-    <server name="DB_DATABASE" value=":memory:"/>
+    <env name="APP_ENV" value="testing"/>
+    <env name="APP_KEY" value="base64:bQcanzu8UWGactsYM3MVfsMpCVBUQFSKGlhCjYtbAi8="/>
+    <env name="BCRYPT_ROUNDS" value="4"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="DB_CONNECTION" value="sqlite"/>
+    <env name="DB_DATABASE" value=":memory:"/>
+    <env name="MAIL_MAILER" value="array"/>
+    <env name="QUEUE_CONNECTION" value="sync"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="TELESCOPE_ENABLED" value="false"/>
   </php>
   <coverage processUncoveredFiles="true">
     <include>
