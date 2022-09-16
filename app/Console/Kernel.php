@@ -20,11 +20,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command(SyncPackageList::class)->dailyAt('02:01');
-        $schedule->command(SyncPackageDownloads::class)->dailyAt('03:01');
-        $schedule->command(SyncPackageInformation::class)->dailyAt('04:01');
-        $schedule->command(CalculateDownloads::class)->dailyAt('05:01');
-        $schedule->command(CalculateWeights::class)->dailyAt('05:01');
+        $schedule->command(SyncPackageList::class)->dailyAt('02:00');
+        $schedule->command(SyncPackageDownloads::class)->dailyAt('03:00');
+        $schedule->command(SyncPackageInformation::class)->dailyAt('04:00');
+        $schedule->command(CalculateDownloads::class)->dailyAt('05:00');
+        $schedule->command(CalculateWeights::class)->dailyAt('06:00');
     }
 
     /**
