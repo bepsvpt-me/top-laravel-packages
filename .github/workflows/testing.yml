@@ -58,6 +58,7 @@ jobs:
           APP_KEY: base64:bQcanzu8UWGactsYM3MVfsMpCVBUQFSKGlhCjYtbAi8=
 
       - name: Run coding style checker
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: vendor/bin/pint -v --test
 
       - name: Run tests
