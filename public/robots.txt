@@ -1,2 +1,3 @@
-user-agent: *
-allow: *
+User-agent: *
+Disallow:
+Sitemap: https://laravel.bepsvpt.me/sitemap.xml
