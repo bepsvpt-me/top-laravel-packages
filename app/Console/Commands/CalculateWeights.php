@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Package;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
-use Webmozart\Assert\Assert;
 
 class CalculateWeights extends Command
 {
@@ -26,9 +25,9 @@ class CalculateWeights extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
         $chunks = Package::orderByDesc('downloads')
             ->get(['id', 'downloads'])
@@ -40,11 +39,11 @@ class CalculateWeights extends Command
         foreach ($chunks as $packages) {
             $ids = $packages->pluck('id')->toArray();
 
-            $result = Package::whereIn('id', $ids)->update(['weights' => $weight++]);
-
-            Assert::count($ids, $result);
+            Package::whereIn('id', $ids)->update(['weights' => $weight++]);
         }
 
         $this->info('Package weights calculate successfully.');
+
+        return self::SUCCESS;
     }
 }

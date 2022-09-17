@@ -1,6 +1,6 @@
 # Top Laravel Packages
 
-[![Actions Status](https://github.com/bepsvpt-me/top-laravel-packages/workflows/tests/badge.svg)](https://github.com/bepsvpt-me/top-laravel-packages/actions)
+[![Testing](https://github.com/bepsvpt-me/top-laravel-packages/actions/workflows/testing.yml/badge.svg)](https://github.com/bepsvpt-me/top-laravel-packages/actions/workflows/testing.yml)
 
 A project that lists top 1,000 downloads laravel package.
  

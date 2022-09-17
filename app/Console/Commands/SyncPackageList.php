@@ -3,25 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Package;
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\TransferException;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 
-/**
- * @template TPackage of array {
- *     total: int,
- *     next?: string,
- *     results: array{
- *         name: string,
- *         description: string,
- *         url: string,
- *         repository: string,
- *         downloads: int,
- *         favers: int
- *     }
- * }
- */
 class SyncPackageList extends Command
 {
     /**
@@ -39,99 +25,86 @@ class SyncPackageList extends Command
     protected $description = 'Sync Laravel package list.';
 
     /**
+     * @var array<int, string>
+     */
+    protected array $fields = [
+        'description',
+        'url',
+        'repository',
+        'downloads',
+        'favers',
+    ];
+
+    /**
      * Execute the console command.
      *
-     * @return void
-     *
-     * @throws GuzzleException
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
-        $url = '/search.json?tags=laravel&type=library&per_page=100&page=1';
+        $responses = Http::pool(
+            fn (Pool $pool) => $this->uris()->map(
+                fn (string $uri) => $pool
+                    ->as($uri)
+                    ->retry(2)
+                    ->withUserAgent($this->userAgent)
+                    ->get($uri),
+            ),
+        );
 
-        $ids = [];
+        collect($responses)
+            ->map(function (Response $response, string $uri) {
+                if ($response->ok()) {
+                    return $response->json('results');
+                }
 
-        while (true) {
-            $data = $this->fetch($url);
+                $this->fatal('Failed to fetch search result.', [
+                    'uri' => $uri,
+                    'status' => $response->status(),
+                    'content' => $response->body(),
+                ]);
 
-            if (empty($data)) {
-                break;
-            }
+                return null;
+            })
+            ->filter()
+            ->collapse()
+            ->each(function (array $data) {
+                $attributes = collect($data)
+                    ->only($this->fields)
+                    ->put('deleted_at', null)
+                    ->toArray();
 
-            $this->save($data['results'], $ids);
+                Package::query()
+                       ->withTrashed()
+                       ->updateOrCreate(
+                           ['name' => $data['name']],
+                           $attributes,
+                       );
+            });
 
-            if (!isset($data['next'])) {
-                break;
-            }
+        $this->info('Sync Laravel package list successfully.');
 
-            $url = urldecode($data['next']);
-        }
-
-        if (!empty($ids)) {
-            Package::whereNotIn('id', $ids)->delete();
-        }
-
-        $this->info('Laravel package list syncs successfully.');
+        return self::SUCCESS;
     }
 
     /**
-     * Fetch remote data.
+     * Get all search URIs.
      *
-     * @param  string  $url
-     * @return TPackage|null
-     *
-     * @throws GuzzleException
+     * @return Collection<int, string>
      */
-    protected function fetch(string $url): ?array
+    protected function uris(): Collection
     {
-        try {
-            $response = $this->client->get($url);
+        $pages = range(1, 10);
 
-            $content = $response->getBody()->getContents();
+        return collect($pages)->map(function (int $page) {
+            $queries = http_build_query([
+                'tags' => 'laravel',
+                'type' => 'library',
+                'per_page' => 100,
+                'page' => $page,
+            ]);
 
-            /** @var TPackage $data */
-            $data = json_decode($content, true);
-
-            return $data;
-        } catch (TransferException $e) {
-            $this->fatal($e->getMessage(), ['url' => $url]);
-        } catch (Exception $e) {
-            $this->critical($e->getMessage(), ['url' => $url]);
-        }
-
-        return null;
-    }
-
-    /**
-     * Save packages information to database.
-     *
-     * @param  TPackage  $packages
-     * @param  int[]  $ids
-     * @return void
-     */
-    protected function save(array $packages, array &$ids): void
-    {
-        $fields = ['description', 'url', 'repository', 'downloads', 'favers'];
-
-        foreach ($packages as $package) {
-            /** @var Package $model */
-            $model = Package::withTrashed()->updateOrCreate(
-                ['name' => $package['name']],
-                Arr::only($package, $fields)
-            );
-
-            if ($model->isDirty()) {
-                $this->fatal(
-                    'Could not create or update package.',
-                    $packages
-                );
-            }
-
-            if ($model->trashed()) {
-                $model->restore();
-            }
-
-            $ids[] = $model->getKey();
-        }
+            return 'https://packagist.org/search.json?' . $queries;
+        });
     }
 }

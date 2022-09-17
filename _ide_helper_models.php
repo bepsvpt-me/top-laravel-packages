@@ -31,7 +31,7 @@ namespace App{
  * @method static \Illuminate\Database\Eloquent\Builder|Download whereType($value)
  * @mixin \Eloquent
  */
-	final class IdeHelperDownload {}
+	class IdeHelperDownload {}
 }
 
 namespace App{
@@ -45,6 +45,7 @@ namespace App{
  * @property string $repository
  * @property \Illuminate\Database\Eloquent\Collection|\App\Download[] $downloads
  * @property int $favers
+ * @property int $weights
  * @property int|null $dependents
  * @property int|null $github_stars
  * @property int|null $github_watchers
@@ -55,13 +56,18 @@ namespace App{
  * @property string|null $min_laravel_version
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $weights
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read int|null $downloads_count
+ * @property-read string $info_uri
+ * @property-read string $stats_uri
  * @method static \Database\Factories\PackageFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Package newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Package newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Package onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Package query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Package unofficial()
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Package whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereDependents($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereDownloads($value)
@@ -79,8 +85,10 @@ namespace App{
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Package whereWeights($value)
+ * @method static \Illuminate\Database\Query\Builder|Package withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Package withoutTrashed()
  * @mixin \Eloquent
  */
-	final class IdeHelperPackage {}
+	class IdeHelperPackage {}
 }
 

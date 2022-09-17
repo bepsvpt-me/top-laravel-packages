@@ -15,3 +15,6 @@ parameters:
 
     scanFiles:
         - _ide_helper_models.php
+
+    ignoreErrors:
+        - '#Parameter \#1 \$callback of method Illuminate\\Support\\Collection<.+?>\:\:each\(\) expects callable\(.+?\)\: mixed, Closure\(.+?\)\: .+? given\.#'

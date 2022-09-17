@@ -3,19 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Package;
-use GuzzleHttp\Promise\Utils;
-use GuzzleHttp\Psr7\Response;
-use Illuminate\Database\Eloquent\Collection;
-use Throwable;
-use Webmozart\Assert\Assert;
+use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 
-/**
- * @template TDownload of array {
- *     labels: array<int, string>,
- *     values: array<string, array<int, int>>,
- *     average: string
- * }
- */
 class SyncPackageDownloads extends Command
 {
     /**
@@ -35,105 +26,75 @@ class SyncPackageDownloads extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
-        $this->output->progressStart(Package::count());
+        $packages = Package::get(['id', 'name']);
 
-        Package::select(['id', 'name'])->chunk(5, function (Collection $packages) {
-            /** @var Collection<int, Package> $packages */
-            try {
-                $responses = $this->responses($packages);
-            } catch (Throwable $e) {
-                $this->fatal(
-                    'Failed to sync package downloads.',
-                    $packages->pluck('id')->toArray()
-                );
+        $this->output->progressStart($packages->count());
 
-                return;
-            }
+        foreach ($packages->chunk(10) as $chunk) {
+            $responses = Http::pool(
+                fn (Pool $pool) => $chunk->map(
+                    fn (Package $package) => $pool
+                        ->as($package->name)
+                        ->retry(2)
+                        ->withUserAgent($this->userAgent)
+                        ->get($package->stats_uri),
+                ),
+            );
 
-            foreach ($responses as $key => $content) {
-                $package = $packages->where('id', $key)->first();
+            collect($responses)
+                ->map(function (Response $response, string $name) use ($packages) {
+                    if ($response->ok()) {
+                        $keys = $response->json('labels');
 
-                Assert::isInstanceOf($package, Package::class);
+                        $values = $response->json('values.' . $name);
 
-                $downloads = array_combine(
-                    $content['labels'],
-                    $content['values'][$package->name]
-                );
+                        if (!is_array($keys) || !is_array($values)) {
+                            return null;
+                        }
 
-                $this->save($package, $downloads);
-            }
+                        return array_combine($keys, $values);
+                    }
 
-            $this->output->progressAdvance($packages->count());
+                    if ($response->status() === 404) {
+                        $packages->firstWhere('name', $name)?->delete();
+                    } else {
+                        $this->fatal('Failed to sync package downloads.', [
+                            'name' => $name,
+                            'status' => $response->status(),
+                            'content' => $response->body(),
+                        ]);
+                    }
 
-            sleep(mt_rand(2, 5));
-        });
+                    return null;
+                })
+                ->filter()
+                ->each(function (array $records, string $name) use ($packages) {
+                    /** @var Package $package */
+                    $package = $packages->firstWhere('name', $name);
+
+                    foreach ($records as $date => $downloads) {
+                        $package->downloads()->updateOrCreate([
+                            'date' => $date,
+                            'type' => 'daily',
+                        ], [
+                            'downloads' => $downloads,
+                        ]);
+                    }
+                });
+
+            $this->output->progressAdvance($chunk->count());
+
+            sleep(6);
+        }
 
         $this->output->progressFinish();
 
         $this->info('Package downloads information syncs successfully.');
-    }
 
-    /**
-     * Get api responses.
-     *
-     * @param  Collection<int, Package>  $packages
-     * @return TDownload
-     *
-     * @throws Throwable
-     */
-    protected function responses(Collection $packages): array
-    {
-        $promises = [];
-
-        foreach ($packages as $package) {
-            $promises[$package->getKey()] =
-                $this->client->getAsync($this->url($package));
-        }
-
-        return array_map(function (Response $response) {
-            /** @var TDownload $data */
-            $data = json_decode(
-                $response->getBody()->getContents(),
-                true
-            );
-
-            return $data;
-        }, Utils::unwrap($promises));
-    }
-
-    /**
-     * Get package downloads info api url.
-     *
-     * @param  Package  $package
-     * @return string
-     */
-    protected function url(Package $package): string
-    {
-        return sprintf(
-            '/packages/%s/stats/all.json?average=daily&from=%s',
-            $package->name,
-            $package->syncedAt()
-        );
-    }
-
-    /**
-     * Save package download info.
-     *
-     * @param  Package  $package
-     * @param  array<string, int>  $downloads
-     * @return void
-     */
-    protected function save(Package $package, array $downloads): void
-    {
-        foreach ($downloads as $date => $value) {
-            $package->downloads()
-                    ->firstOrNew(['date' => $date, 'type' => 'daily'])
-                    ->fill(['downloads' => $value])
-                    ->save();
-        }
+        return self::SUCCESS;
     }
 }

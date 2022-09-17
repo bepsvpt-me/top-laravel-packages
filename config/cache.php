@@ -43,12 +43,6 @@ return [
             'path' => storage_path('framework/cache/data'),
         ],
 
-        'redis' => [
-            'driver' => 'redis',
-            'connection' => 'cache',
-            'lock_connection' => 'default',
-        ],
-
     ],
 
     /*

@@ -2,11 +2,11 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Webmozart\Assert\Assert;
 
 /**
  * @mixin IdeHelperPackage
@@ -26,6 +26,32 @@ class Package extends Model
     protected $guarded = false;
 
     /**
+     * @return string
+     */
+    public function getInfoUriAttribute(): string
+    {
+        return 'https://repo.packagist.org/p2/' . $this->name . '.json';
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatsUriAttribute(): string
+    {
+        $date = $this->downloads()
+                     ->where('type', 'daily')
+                     ->latest('date')
+                     ->first(['date'])
+                     ?->date;
+
+        return sprintf(
+            'https://packagist.org/packages/%s/stats/all.json?average=daily&from=%s',
+            $this->name,
+            $date ?: '',
+        );
+    }
+
+    /**
      * Get the downloads for the package.
      *
      * @return HasMany<Download>
@@ -36,27 +62,23 @@ class Package extends Model
     }
 
     /**
-     * Get package synced at info.
+     * Scope a query to only include popular users.
      *
-     * @return string
+     * @param  Builder<Package>  $query
+     * @return Builder<Package>
      */
-    public function syncedAt(): string
+    public function scopeUnofficial(Builder $query): Builder
     {
-        if (!$this->exists) {
-            return '';
-        }
-
-        $download = $this->downloads()
-            ->where('type', 'daily')
-            ->orderByDesc('date')
-            ->first(['date']);
-
-        Assert::nullOrIsInstanceOf($download, Download::class);
-
-        if ($download === null) {
-            return '';
-        }
-
-        return $download->date;
+        return $query
+            ->whereNot('name', 'like', 'laravel/%')
+            ->whereNot('name', 'like', 'illuminate/%')
+            ->whereNotIn('name', [
+                'barryvdh/laravel-cors',
+                'facade/ignition',
+                'fruitcake/laravel-cors',
+                'nunomaduro/collision',
+                'spatie/ignition',
+                'spatie/laravel-ignition',
+            ]);
     }
 }

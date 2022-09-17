@@ -7,6 +7,7 @@ use App\Package;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class CalculateDownloads extends Command
 {
@@ -27,26 +28,36 @@ class CalculateDownloads extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
-        foreach (Package::all(['id']) as $package) {
+        foreach (Package::get(['id']) as $package) {
             foreach (['weekly', 'monthly', 'yearly'] as $type) {
                 $this->downloads($package, $type)
-                    ->groupBy(function (Download $download) use ($type) {
-                        return Carbon::parse($download->date)
-                            ->{sprintf('startOf%s', ucfirst(substr($type, 0, -2)))}()
-                            ->toDateString();
-                    })
-                    ->each(function (Collection $downloads, $date) use ($package, $type) {
-                        $package->downloads()
-                            ->firstOrNew(['date' => $date, 'type' => $type])
-                            ->fill(['downloads' => $downloads->sum('downloads')])
-                            ->save();
-                    });
+                     ->groupBy(function (Download $download) use ($type) {
+                         $method = Str::of($type)
+                                      ->substr(0, -2)
+                                      ->ucfirst()
+                                      ->prepend('startOf')
+                                      ->toString();
+
+                         return Carbon::parse($download->date)
+                                      ->{$method}()
+                                      ->toDateString();
+                     })
+                     ->each(function (Collection $downloads, $date) use ($package, $type) {
+                         $package->downloads()->updateOrCreate([
+                             'date' => $date,
+                             'type' => $type,
+                         ], [
+                             'downloads' => $downloads->sum('downloads'),
+                         ]);
+                     });
             }
         }
+
+        return self::SUCCESS;
     }
 
     /**
@@ -59,12 +70,12 @@ class CalculateDownloads extends Command
     protected function downloads(Package $package, string $type): Collection
     {
         $download = $package->downloads()
-            ->where('type', $type)
-            ->latest('date')
-            ->first();
+                            ->where('type', '=', $type)
+                            ->latest('date')
+                            ->first();
 
         $downloads = $package->downloads()
-            ->where('type', '=', 'daily');
+                             ->where('type', '=', 'daily');
 
         if ($download !== null) {
             $downloads->where('date', '>=', $download->date);

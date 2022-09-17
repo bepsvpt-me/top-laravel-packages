@@ -23,20 +23,19 @@
     "guzzlehttp/guzzle": "~7.5.0",
     "laravel/framework": "~9.30.1",
     "laravel/tinker": "~2.7.2",
-    "predis/predis": "~2.0.0",
     "webmozart/assert": "~1.11.0"
   },
   "require-dev": {
     "barryvdh/laravel-ide-helper": "~2.12.3",
-    "ergebnis/composer-normalize": "~2.28.0",
+    "ergebnis/composer-normalize": "~2.28.3",
     "fakerphp/faker": "~1.20.0",
     "laravel/pint": "~1.2.0",
     "nunomaduro/collision": "~6.3.0",
     "nunomaduro/larastan": "~2.2.0",
     "phpstan/phpstan-phpunit": "~1.1.1",
     "phpstan/phpstan-webmozart-assert": "~1.2.0",
-    "phpunit/phpunit": "~9.5.21",
-    "spatie/laravel-ignition": "~1.4.1"
+    "phpunit/phpunit": "~9.5.24",
+    "spatie/laravel-ignition": "~1.5.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -78,10 +77,10 @@
     ],
     "update-project": [
       "@php artisan --ansi down",
-      "@php artisan --ansi optimize:clear",
       "git pull --rebase --autostash",
       "@composer install --ansi --no-dev -o",
-      "@php artisan --ansi optimize",
+      "@php artisan --ansi config:cache",
+      "@php artisan --ansi route:cache",
       "@php artisan --ansi up"
     ]
   }

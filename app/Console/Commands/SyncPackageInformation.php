@@ -4,67 +4,13 @@ namespace App\Console\Commands;
 
 use App\Package;
 use Composer\Semver\Semver;
-use Composer\Semver\VersionParser;
-use GuzzleHttp\Promise\Utils;
-use GuzzleHttp\Psr7\Response;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
-use Throwable;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Webmozart\Assert\Assert;
 
-/**
- * @template TVersion of array {
- *     name: string,
- *     description: string,
- *     keywords: array<int, string>,
- *     homepage: string,
- *     version: string,
- *     version_normalized: string,
- *     license: array<int, string>,
- *     authors: array<int, array<string, string>>,
- *     source: array<string, string>,
- *     dist: array<string, string>,
- *     type: string,
- *     support: array<string, string>,
- *     funding: array<int, array<string, string>>,
- *     time: string,
- *     autoload: array<string, array<int|string, string>>,
- *     extra: array<string, mixed>,
- *     default-branch: bool,
- *     require: array<string, string>,
- *     require-dev: array<string, string>,
- *     suggest: array<string, string>
- * }
- *
- * @template TVersions of array<string, TVersion>
- *
- * @template TPackage of array {
- *     name: string,
- *     description: string,
- *     time: string,
- *     maintainers: array<int, array<string, string>>,
- *     versions: TVersions,
- *     type: string,
- *     repository: string,
- *     github_stars: int,
- *     github_watchers: int,
- *     github_forks: int,
- *     github_open_issues: int,
- *     language: string,
- *     dependents: int,
- *     suggesters: int,
- *     downloads: array {
- *         total: int,
- *         monthly: int,
- *         daily: int
- *     },
- *     favers: int
- * }
- *
- * @template TInformation of array {
- *     package: TPackage
- * }
- */
 class SyncPackageInformation extends Command
 {
     /**
@@ -84,121 +30,80 @@ class SyncPackageInformation extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
-        $this->output->progressStart(Package::count());
+        $packages = Package::get();
 
-        Package::whereIn('weights', $this->weights())
-               ->select(['id', 'name'])
-               ->chunk(5, function (Collection $packages) {
-                   /** @var Collection<int, Package> $packages */
-                   try {
-                       $responses = $this->responses($packages);
-                   } catch (Throwable $e) {
-                       $this->fatal(
-                           'Failed to sync package information.',
-                           $packages->pluck('id')->toArray()
-                       );
+        $this->output->progressStart($packages->count());
 
-                       return;
-                   }
+        foreach ($packages->chunk(10) as $chunk) {
+            $responses = Http::pool(
+                fn (Pool $pool) => $chunk->map(
+                    fn (Package $package) => $pool
+                        ->as($package->name)
+                        ->retry(2)
+                        ->withUserAgent($this->userAgent)
+                        ->get($package->info_uri),
+                ),
+            );
 
-                   foreach ($responses as $key => $info) {
-                       $package = $packages->where('id', $key)->first();
+            collect($responses)
+                ->map(function ($response, string $name) use ($packages) {
+                    if (!($response instanceof Response)) {
+                        dd($response, $name);
+                    }
+                    if ($response->ok()) {
+                        return $response->json('packages.' . $name . '.0');
+                    }
 
-                       Assert::isInstanceOf($package, Package::class);
+                    if ($response->status() === 404) {
+                        $packages->firstWhere('name', $name)?->delete();
+                    } else {
+                        $this->fatal('Failed to sync package information.', [
+                            'name' => $name,
+                            'status' => $response->status(),
+                            'content' => $response->body(),
+                        ]);
+                    }
 
-                       $version = $this->latestVersion($info['versions']);
+                    return null;
+                })
+                ->filter()
+                ->each(function (array $info, string $name) use ($packages) {
+                    /** @var Package $package */
+                    $package = $packages->firstWhere('name', $name);
 
-                       $requires = $info['versions'][$version]['require'] ?? [];
+                    $requires = $info['require'] ?? [];
 
-                       $package->update([
-                           'dependents' => $info['dependents'],
-                           'github_stars' => $info['github_stars'],
-                           'github_watchers' => $info['github_watchers'],
-                           'github_forks' => $info['github_forks'],
-                           'github_open_issues' => $info['github_open_issues'],
-                           'latest_version' => $version,
-                           'min_php_version' => $this->minPhpVersion($requires['php'] ?? null),
-                           'min_laravel_version' => $this->minLaravelVersion($requires['laravel/framework'] ?? ($requires['illuminate/support'] ?? null)),
-                       ]);
-                   }
+                    $laravel = Arr::only($requires, [
+                        'laravel/framework',
+                        'illuminate/contracts',
+                        'illuminate/support',
+                    ]);
 
-                   $this->output->progressAdvance($packages->count());
+                    $constraint = Arr::first($laravel);
 
-                   sleep(mt_rand(2, 5));
-               });
+                    Assert::nullOrStringNotEmpty($constraint);
+
+                    $package->update([
+                        'latest_version' => $info['version'],
+                        'min_php_version' => $this->minPHP($requires['php'] ?? null),
+                        'min_laravel_version' => $this->minLaravel($constraint),
+                    ]);
+                });
+
+            $this->output->progressAdvance($chunk->count());
+
+            sleep(6);
+        }
 
         $this->output->progressFinish();
 
-        $this->info('Package information syncs successfully.');
-    }
+        $this->info('Sync package information successfully.');
 
-    /**
-     * Get packages weights filter.
-     *
-     * @return array<int, int>
-     */
-    protected function weights(): array
-    {
-        $day = now()->dayOfYear;
-
-        $available = range(1, Package::TOTAL_WEIGHTS);
-
-        return array_filter($available, function (int $weight) use ($day) {
-            return 0 === ($day % $weight);
-        });
-    }
-
-    /**
-     * Get package information api urls.
-     *
-     * @param  Collection<int, Package>  $packages
-     * @return TPackage
-     *
-     * @throws Throwable
-     */
-    protected function responses(Collection $packages): array
-    {
-        $promises = [];
-
-        foreach ($packages as $package) {
-            $promises[$package->getKey()] = $this->client->getAsync(
-                sprintf('/packages/%s.json', $package->name)
-            );
-        }
-
-        return array_map(function (Response $response) {
-            $content = $response->getBody()->getContents();
-
-            /** @var TInformation $decoded */
-            $decoded = json_decode($content, true);
-
-            return $decoded['package'];
-        }, Utils::unwrap($promises));
-    }
-
-    /**
-     * Get package latest stable version.
-     *
-     * @param  TVersions  $versions
-     * @return string|null
-     */
-    protected function latestVersion(array $versions): ?string
-    {
-        $all = array_keys($versions);
-
-        $stables = array_filter($all, function (string $version) {
-            return 'stable' === VersionParser::parseStability($version);
-        });
-
-        $latest = Arr::first(Semver::rsort($stables));
-
-        Assert::nullOrString($latest);
-
-        return $latest;
+        return self::SUCCESS;
     }
 
     /**
@@ -207,13 +112,21 @@ class SyncPackageInformation extends Command
      * @param  string|null  $constraint
      * @return string|null
      */
-    protected function minPhpVersion(string $constraint = null): ?string
+    protected function minPHP(string $constraint = null): ?string
     {
-        $versions = [
-            '8.2', '8.1', '8.0',
-            '7.4', '7.3', '7.2', '7.1', '7.0',
-            '5.6', '5.5', '5.4', '5.3',
-        ];
+        static $versions = [];
+
+        if (empty($versions)) {
+            $data = [
+                '8.3', '8.2', '8.1', '8.0',
+                '7.4', '7.3', '7.2', '7.1', '7.0',
+                '5.6', '5.5', '5.4', '5.3',
+            ];
+
+            $versions = collect($data)
+                ->keyBy(fn (string $v) => $v . '.99')
+                ->toArray();
+        }
 
         return $this->minVersion($versions, $constraint);
     }
@@ -224,13 +137,25 @@ class SyncPackageInformation extends Command
      * @param  string|null  $constraint
      * @return string|null
      */
-    protected function minLaravelVersion(string $constraint = null): ?string
+    protected function minLaravel(string $constraint = null): ?string
     {
-        $versions = [
-            '9.0', '8.0', '7.0', '6.0',
-            '5.8', '5.7', '5.6', '5.5', '5.4', '5.3', '5.2', '5.1', '5.0',
-            '4.2', '4.1', '4.0',
-        ];
+        static $versions = [];
+
+        if (empty($versions)) {
+            $data = [
+                '9.0', '8.0', '7.0', '6.0',
+                '5.8', '5.7', '5.6', '5.5', '5.4', '5.3', '5.2', '5.1', '5.0',
+                '4.2', '4.1', '4.0',
+            ];
+
+            $versions = collect($data)
+                ->keyBy(function (string $v) {
+                    return Semver::satisfies($v, '>=6.0')
+                        ? Str::replace('.0', '.99', $v)
+                        : $v . '.99';
+                })
+                ->toArray();
+        }
 
         return $this->minVersion($versions, $constraint);
     }
@@ -238,20 +163,20 @@ class SyncPackageInformation extends Command
     /**
      * Get minimum satisfied version.
      *
-     * @param  array<int, string>  $versions
+     * @param  array<string, string>  $versions
      * @param  string|null  $constraint
      * @return string|null
      */
     protected function minVersion(array $versions, string $constraint = null): ?string
     {
-        if (is_null($constraint)) {
+        if ($constraint === null) {
             return null;
         }
 
-        $min = Arr::last(Semver::satisfiedBy($versions, $constraint));
+        $key = Arr::last(Semver::satisfiedBy(array_keys($versions), $constraint));
 
-        Assert::nullOrString($min);
+        Assert::nullOrString($key);
 
-        return $min;
+        return $versions[$key];
     }
 }

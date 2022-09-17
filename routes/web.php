@@ -10,4 +10,6 @@ Route::name('home')
 
 Route::name('ranking')
     ->get('/ranking/{type}/{date}')
-    ->uses(RankingController::class);
+    ->uses(RankingController::class)
+    ->whereIn('type', ['daily', 'weekly', 'monthly', 'yearly'])
+    ->where('date', '\d{4}(?:-\d{2}(?:-\d{2})?)?');

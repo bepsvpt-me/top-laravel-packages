@@ -14,7 +14,7 @@ class Kernel extends HttpKernel
      *
      * These middlewares are run during every request to your application.
      *
-     * @var array<int, class-string|string>
+     * @var array<int, class-string>
      */
     protected $middleware = [
         SecureHeadersMiddleware::class,

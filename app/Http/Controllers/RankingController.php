@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Download;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-/**
- * @extends Controller<Download>
- */
 class RankingController extends Controller
 {
     /**
@@ -23,21 +21,24 @@ class RankingController extends Controller
      */
     public function __invoke(string $type, string $date): View
     {
-        if (!$this->check($type, $date)) {
+        if (($time = $this->check($type, $date)) === null) {
             throw new NotFoundHttpException();
         }
 
         $key = sprintf('ranking-%s-%s', $type, $date);
 
-        $ranks = Cache::remember($key, $this->ttl, function () use ($type, $date) {
-            return $this->exclude(
-                Download::with('package:packages.id,name,url,description')
-                    ->where('type', $type)
-                    ->where('date', $date)
-                    ->orderByDesc('downloads')
-                    ->get()
-            );
-        });
+        $ttl = $this->ttl($type, $time);
+
+        $ranks = Cache::remember($key, $ttl,
+            fn () => Download::with('package')
+                            ->whereHas('package',
+                                fn ($query) => $query->unofficial(),
+                            )
+                            ->where('type', $type)
+                            ->where('date', $date)
+                            ->orderByDesc('downloads')
+                            ->get(),
+        );
 
         return view('rank')->with('ranks', $ranks);
     }
@@ -47,30 +48,38 @@ class RankingController extends Controller
      *
      * @param  string  $type
      * @param  string  $date
-     * @return bool
+     * @return Carbon|null
      */
-    protected function check(string $type, string $date): bool
+    protected function check(string $type, string $date): ?Carbon
     {
         try {
             $target = Carbon::createFromFormat(
                 $this->format($type),
-                $date
+                $date,
             );
-        } catch (Exception $e) {
-            return false;
+        } catch (Exception) {
+            return null;
+        }
+
+        if ($target === false) {
+            return null;
         }
 
         $errors = Carbon::getLastErrors();
 
         if ($errors['warning_count'] || $errors['error_count']) {
-            return false;
+            return null;
         }
 
         $from = '2012-05-31';
 
         $to = now()->startOfDay();
 
-        return $target && $target->isBetween($from, $to);
+        if (!$target->isBetween($from, $to)) {
+            return null;
+        }
+
+        return $target;
     }
 
     /**
@@ -81,16 +90,43 @@ class RankingController extends Controller
      */
     protected function format(string $type): string
     {
-        switch ($type) {
-            case 'daily':
-            case 'weekly':
-                return '!Y-m-d';
-            case 'monthly':
-                return '!Y-m';
-            case 'yearly':
-                return '!Y';
-            default:
-                return '';
+        return match ($type) {
+            'daily', 'weekly' => '!Y-m-d',
+            'monthly' => '!Y-m',
+            'yearly' => '!Y',
+            default => '',
+        };
+    }
+
+    /**
+     * Get cache ttl.
+     *
+     * @param  string  $type
+     * @param  Carbon  $time
+     * @return Carbon
+     */
+    protected function ttl(string $type, Carbon $time): Carbon
+    {
+        $default = now()->startOfDay()->addHour()->addDay();
+
+        if ($time->isFuture() || $time->isToday() || $time->isYesterday()) {
+            return $default;
         }
+
+        $group = match ($type) {
+            'daily' => 'Day',
+            'weekly' => 'Week',
+            'monthly' => 'Month',
+            'yearly' => 'Year',
+            default => 'Century',
+        };
+
+        $method = Str::of('isSame')
+                     ->append($group)
+                     ->toString();
+
+        return now()->{$method}($time)
+            ? $default
+            : now()->addYears(10);
     }
 }

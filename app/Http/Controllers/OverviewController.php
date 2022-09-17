@@ -6,9 +6,6 @@ use App\Package;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 
-/**
- * @extends Controller<Package>
- */
 class OverviewController extends Controller
 {
     /**
@@ -20,13 +17,14 @@ class OverviewController extends Controller
     {
         $key = 'overview';
 
-        $packages = Cache::remember($key, $this->ttl, function () {
-            return $this->exclude(
-                Package::orderByDesc('downloads')
-                    ->orderByDesc('favers')
-                    ->get()
-            );
-        });
+        $ttl = now()->startOfDay()->addHour()->addDay();
+
+        $packages = Cache::remember($key, $ttl,
+            fn () => Package::unofficial()
+                           ->orderByDesc('downloads')
+                           ->orderByDesc('favers')
+                           ->get(),
+        );
 
         return view('home')->with('packages', $packages);
     }
