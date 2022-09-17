@@ -23,6 +23,7 @@
     "guzzlehttp/guzzle": "~7.5.0",
     "laravel/framework": "~9.30.1",
     "laravel/tinker": "~2.7.2",
+    "spatie/laravel-sitemap": "~6.2.1",
     "webmozart/assert": "~1.11.0"
   },
   "require-dev": {

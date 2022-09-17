@@ -18,3 +18,4 @@ parameters:
 
     ignoreErrors:
         - '#Parameter \#1 \$callback of method Illuminate\\Support\\Collection<.+?>\:\:each\(\) expects callable\(.+?\)\: mixed, Closure\(.+?\)\: .+? given\.#'
+        - '#Parameter \#1 \$callback of method Illuminate\\Support\\Collection<.+?>\:\:map\(\) expects callable\(.+?\)\)\: mixed, Closure\(.+?\)\: .+? given\.#'

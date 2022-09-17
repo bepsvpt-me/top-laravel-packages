@@ -33,6 +33,7 @@ class SyncPackage extends Command
             SyncPackageInformation::class,
             CalculateDownloads::class,
             CalculateWeights::class,
+            GeneratorSitemap::class,
         ];
 
         foreach ($jobs as $job) {
