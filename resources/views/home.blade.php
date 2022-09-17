@@ -46,11 +46,11 @@
           {{ __('base.favorites') }}
         </th>
 
-        <th class="text-left" rowspan="2">
+        <th class="text-start" rowspan="2">
           {{ __('base.name') }}
         </th>
 
-        <th class="text-left" rowspan="2">
+        <th class="text-start" rowspan="2">
           {{ __('base.description') }}
         </th>
 
@@ -70,8 +70,8 @@
       @forelse ($packages as $package)
         <tr>
           <td class="text-center">{{ $loop->iteration }}</td>
-          <td class="text-right">{{ number_format($package->getAttribute('downloads')) }}</td>
-          <td class="text-right">{{ number_format($package->favers) }}</td>
+          <td class="text-end font-monospace">{{ number_format($package->getAttribute('downloads')) }}</td>
+          <td class="text-end font-monospace">{{ number_format($package->favers) }}</td>
           <td class="name text-break text-wrap">
             @component('components.external-link')
               @slot('href', $package->url)

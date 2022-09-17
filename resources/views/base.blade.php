@@ -30,7 +30,7 @@
       <div class="container-fluid text-center text-muted">
         <p class="mb-1">
           @component('components.external-link')
-            @slot('href', 'https://github.com/bepsvpt-me/laravel.bepsvpt.me')
+            @slot('href', 'https://github.com/bepsvpt-me/top-laravel-packages')
 
             <span>GitHub</span>
           @endcomponent

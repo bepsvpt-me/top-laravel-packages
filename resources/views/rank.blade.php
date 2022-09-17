@@ -13,7 +13,7 @@
 @endsection
 
 @section('header')
-  <div class="text-md-right mt-2 mt-md-0">
+  <div class="text-md-end mt-2 mt-md-0">
     @if ($last->isAfter('2012-06-01'))
       <a
         href="{{ route('ranking', ['type' => $type, 'date' => $last->format(sprintf('Y%s%s', $type !== 'yearly' ? '-m' : '' , in_array($type, ['daily', 'weekly']) ? '-d' : ''))]) }}"
@@ -42,11 +42,11 @@
           {{ __('base.downloads') }}
         </th>
 
-        <th class="text-left">
+        <th class="text-start">
           {{ __('base.name') }}
         </th>
 
-        <th class="text-left">
+        <th class="text-start">
           {{ __('base.description') }}
         </th>
       </tr>
@@ -56,7 +56,7 @@
       @forelse ($ranks as $rank)
         <tr>
           <td class="text-center">{{ number_format($loop->iteration) }}</td>
-          <td class="text-right">{{ number_format($rank->downloads) }}</td>
+          <td class="text-end font-monospace">{{ number_format($rank->downloads) }}</td>
           <td class="name text-break text-wrap">
             @component('components.external-link')
               @slot('href', $rank->package->url)
