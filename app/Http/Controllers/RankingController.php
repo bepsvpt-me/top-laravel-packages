@@ -35,7 +35,7 @@ class RankingController extends Controller
                                 fn ($query) => $query->unofficial(),
                             )
                             ->where('type', $type)
-                            ->where('date', $date)
+                            ->where('date', $time->toDateString())
                             ->orderByDesc('downloads')
                             ->get(),
         );
