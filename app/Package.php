@@ -76,6 +76,7 @@ class Package extends Model
                 'barryvdh/laravel-cors',
                 'facade/ignition',
                 'fruitcake/laravel-cors',
+                'fruitcake/php-cors',
                 'nunomaduro/collision',
                 'spatie/ignition',
                 'spatie/laravel-ignition',
