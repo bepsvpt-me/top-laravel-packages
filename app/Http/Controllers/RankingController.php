@@ -109,7 +109,7 @@ class RankingController extends Controller
     {
         $default = now()->startOfDay()->addHour()->addDay();
 
-        if ($time->isFuture() || $time->isToday() || $time->isYesterday()) {
+        if ($time->isAfter(now()->startOfDay()->subDays())) {
             return $default;
         }
 
