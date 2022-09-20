@@ -34,7 +34,7 @@ class SyncPackageDownloads extends Command
 
         $this->output->progressStart($packages->count());
 
-        foreach ($packages->chunk(10) as $chunk) {
+        foreach ($packages->chunk(5) as $chunk) {
             $responses = Http::pool(
                 fn (Pool $pool) => $chunk->map(
                     fn (Package $package) => $pool
@@ -46,7 +46,11 @@ class SyncPackageDownloads extends Command
             );
 
             collect($responses)
-                ->map(function (Response $response, string $name) use ($packages) {
+                ->map(function ($response, string $name) use ($packages) {
+                    if (!($response instanceof Response)) {
+                        throw $response;
+                    }
+
                     if ($response->ok()) {
                         $keys = $response->json('labels');
 
@@ -88,7 +92,7 @@ class SyncPackageDownloads extends Command
 
             $this->output->progressAdvance($chunk->count());
 
-            sleep(6);
+            sleep(10);
         }
 
         $this->output->progressFinish();
