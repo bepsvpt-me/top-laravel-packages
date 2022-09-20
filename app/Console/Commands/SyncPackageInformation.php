@@ -38,7 +38,7 @@ class SyncPackageInformation extends Command
 
         $this->output->progressStart($packages->count());
 
-        foreach ($packages->chunk(5) as $chunk) {
+        foreach ($packages->chunk(3) as $chunk) {
             $responses = Http::pool(
                 fn (Pool $pool) => $chunk->map(
                     fn (Package $package) => $pool

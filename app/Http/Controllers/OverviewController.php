@@ -17,7 +17,7 @@ class OverviewController extends Controller
     {
         $key = 'overview';
 
-        $ttl = now()->startOfDay()->addHour()->addDay();
+        $ttl = now()->startOfDay()->addHours(3)->addDay();
 
         $packages = Cache::remember($key, $ttl,
             fn () => Package::unofficial()
