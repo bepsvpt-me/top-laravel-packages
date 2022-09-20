@@ -95,25 +95,24 @@ class SyncPackageList extends Command
      */
     protected function uris(): Collection
     {
-        $pages = range(1, 10);
+        $params = [];
 
-        return collect($pages)
-            ->map(function (int $page) {
-                $uris = [];
+        foreach (range(1, 10) as $page) {
+            foreach (['tags', 'q'] as $type) {
+                $params[] = compact('page', 'type');
+            }
+        }
 
-                foreach (['tags', 'q'] as $group) {
-                    $queries = http_build_query([
-                        $group => 'laravel',
-                        'type' => 'library',
-                        'per_page' => 100,
-                        'page' => $page,
-                    ]);
+        return collect($params)
+            ->map(function (array $param) {
+                $queries = http_build_query([
+                    $param['type'] => 'laravel',
+                    'type' => 'library',
+                    'per_page' => 100,
+                    'page' => $param['page'],
+                ]);
 
-                    $uris[] = 'https://packagist.org/search.json?' . $queries;
-                }
-
-                return $uris;
-            })
-            ->flatten();
+                return 'https://packagist.org/search.json?' . $queries;
+            });
     }
 }
