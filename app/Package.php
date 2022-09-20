@@ -75,6 +75,7 @@ class Package extends Model
             ->whereNotIn('name', [
                 'barryvdh/laravel-cors',
                 'facade/ignition',
+                'fideloper/proxy',
                 'fruitcake/laravel-cors',
                 'fruitcake/php-cors',
                 'nunomaduro/collision',
