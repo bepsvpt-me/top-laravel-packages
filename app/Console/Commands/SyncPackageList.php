@@ -68,6 +68,7 @@ class SyncPackageList extends Command
             })
             ->filter()
             ->collapse()
+            ->unique('name')
             ->each(function (array $data) {
                 $attributes = collect($data)
                     ->only($this->fields)
@@ -96,15 +97,23 @@ class SyncPackageList extends Command
     {
         $pages = range(1, 10);
 
-        return collect($pages)->map(function (int $page) {
-            $queries = http_build_query([
-                'tags' => 'laravel',
-                'type' => 'library',
-                'per_page' => 100,
-                'page' => $page,
-            ]);
+        return collect($pages)
+            ->map(function (int $page) {
+                $uris = [];
 
-            return 'https://packagist.org/search.json?' . $queries;
-        });
+                foreach (['tags', 'q'] as $group) {
+                    $queries = http_build_query([
+                        $group => 'laravel',
+                        'type' => 'library',
+                        'per_page' => 100,
+                        'page' => $page,
+                    ]);
+
+                    $uris[] = 'https://packagist.org/search.json?' . $queries;
+                }
+
+                return $uris;
+            })
+            ->flatten();
     }
 }
