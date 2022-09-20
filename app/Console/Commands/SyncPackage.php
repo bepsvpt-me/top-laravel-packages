@@ -39,7 +39,7 @@ class SyncPackage extends Command
         foreach ($jobs as $job) {
             $this->call($job);
 
-            sleep(10);
+            sleep(60);
         }
 
         return self::SUCCESS;

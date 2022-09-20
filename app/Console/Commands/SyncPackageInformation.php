@@ -38,12 +38,12 @@ class SyncPackageInformation extends Command
 
         $this->output->progressStart($packages->count());
 
-        foreach ($packages->chunk(3) as $chunk) {
+        foreach ($packages->chunk(5) as $chunk) {
             $responses = Http::pool(
                 fn (Pool $pool) => $chunk->map(
                     fn (Package $package) => $pool
                         ->as($package->name)
-                        ->retry(2)
+                        ->retry(3, 10 * 1000)
                         ->withUserAgent($this->userAgent)
                         ->get($package->info_uri),
                 ),
@@ -97,7 +97,7 @@ class SyncPackageInformation extends Command
 
             $this->output->progressAdvance($chunk->count());
 
-            sleep(10);
+            sleep(mt_rand(8, 15));
         }
 
         $this->output->progressFinish();
