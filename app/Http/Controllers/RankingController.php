@@ -107,9 +107,9 @@ class RankingController extends Controller
      */
     protected function ttl(string $type, Carbon $time): Carbon
     {
-        $default = now()->startOfDay()->addHours(3)->addDay();
+        $default = now()->addHours(3);
 
-        if ($time->isAfter(now()->startOfDay()->subDays())) {
+        if ($time->isAfter(now()->startOfDay()->subDays(3))) {
             return $default;
         }
 
